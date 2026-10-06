@@ -118,6 +118,7 @@ button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
   color: var(--fg);
   overflow-wrap: anywhere;
 }
+.lore { margin: 0; max-width: 60ch; color: var(--fg); opacity: .9; }
 .tags { display: flex; gap: .5rem; flex-wrap: wrap; }
 .tag {
   font-family: var(--display);
@@ -184,6 +185,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
         <p class="caste" id="caste"></p>
       </div>
       <div class="tags" id="tags"></div>
+      <p class="lore" id="lore"></p>
       <div class="actions">
         <button type="button" class="ghost" id="copy">Copier</button>
         <button type="button" class="ghost" id="download" hidden>Télécharger la carte</button>
@@ -247,23 +249,44 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ["le Sans-tête", "la Sans-tête"], ["Poing-de-fer", "Poing-de-fer"], ["Tueur de Réprouvés", "Tueuse de Réprouvés"],
   ];
 
-  // {e} devient "e" au féminin
-  const FLAVORS = [
-    "Les Sans-éclat ne meurent jamais vraiment. Ils reviennent, toujours plus têtus.",
-    "Nul ne se souvient de ce nom, mais tous en craignent l'ombre.",
-    "Que la grâce guide ses pas, ou qu'elle les égare.",
-    "Une rune de plus, une mort de moins.",
-    "Dans l'Entre-terre, la patience est une arme comme une autre.",
-    "Même les dragons ralentissent en entendant ce nom.",
-    "Le brouillard s'écarte sur son passage.",
-    "Forgé{e} dans la défaite, trempé{e} dans la persévérance.",
-    "Revenu{e} cent fois devant la même brume, jamais la même issue.",
-    "L'Arbre-Monde l'a vu{e} naître. Il le regrette peut-être.",
-    "Ses ennemis en parlent au passé, par précaution.",
-    "La Volonté supérieure n'avait rien prévu de tel.",
-    "Chaque cicatrice porte le nom d'un boss.",
-    "Sous la lumière dorée, une silhouette refuse de plier.",
-  ];
+  // {e} devient "e" au féminin, {il} devient "elle"
+  const LORE = {
+    origins: [
+      "Né{e} sous la lumière déclinante de l'Arbre-Monde",
+      "Sans-éclat rappelé{e} d'entre les morts par la grâce",
+      "Banni{e} de Leyndell, capitale royale",
+      "Formé{e} aux arts de la pierre d'éclat à Raya Lucaria",
+      "Rescapé{e} de la putréfaction écarlate de Caelid",
+      "Venu{e} d'au-delà de la brume, sans nom ni bannière",
+      "Élevé{e} parmi les Réprouvés, dans les égouts de la capitale",
+      "Remonté{e} des profondeurs du fleuve Siofra",
+    ],
+    dlcOrigins: [
+      "Passé{e} dans les terres de l'Ombre sur les traces de Miquella",
+      "Né{e} à l'ombre de l'Arbre-Ombre, loin des yeux de Marika",
+    ],
+    regions: [
+      "les plaines de Nécrolimbe", "les rives brumeuses de Liurnia des Lacs", "les terres rougeoyantes de Caelid",
+      "le plateau d'Altus", "les pentes fumantes du mont Gelmir", "les remparts de Leyndell",
+      "les Montagnes des Géants", "les ruines suspendues de Farum Azula", "Nokron, la Cité éternelle",
+    ],
+    dlcRegions: ["les terres de l'Ombre", "les abords de l'Arbre-Ombre"],
+    deeds: {
+      boss: ["{il} garde un fragment de Grande Rune", "{il} règne sur des légions de soldats déchus", "{il} attend les Sans-éclat assez fous pour franchir sa brume"],
+      pnj: ["{il} partage ses secrets près des sites de grâce", "{il} vend ses services contre quelques runes", "{il} poursuit une quête que nul ne comprend vraiment"],
+      ennemi: ["{il} hante les routes en quête de runes", "{il} monte la garde sans jamais faiblir", "{il} rôde à l'affût du moindre Sans-éclat"],
+    },
+    links: [
+      "Certains jurent l'avoir vu{e} sous les traits de « {caste} ».",
+      "Les chroniques {le} rangent parmi les « {caste} ».",
+      "Les anciens disent qu'{il} porte la marque de « {caste} ».",
+    ],
+    endings: [
+      "On l'appelle « {ep} », et nul n'ose le contester.",
+      "Le titre de « {ep} » lui fut donné dans le sang.",
+      "Aux sites de grâce, on murmure « {ep} » avant de prier.",
+    ],
+  };
 
   const PALETTES = {
     boss: { sky: ["#2a1208", "#0d0604"], glow: "#f0c56a", accent: "#b8402e" },
@@ -356,6 +379,23 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     do { ctx.font = `${weight} ${s}px ${family}`; s -= 1; } while (ctx.measureText(text).width > maxWidth && s > 12);
   }
 
+  function fitWrap(text, x, y, maxWidth, maxHeight, size, style) {
+    let lines, lh;
+    for (let s = size; s >= 13; s--) {
+      ctx.font = `${style} ${s}px Spectral, Georgia, serif`;
+      lh = Math.round(s * 1.35);
+      lines = [];
+      let line = "";
+      for (const word of text.split(" ")) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = word; } else { line = test; }
+      }
+      lines.push(line);
+      if (lines.length * lh <= maxHeight) break;
+    }
+    lines.forEach((l, i) => ctx.fillText(l, x, y + i * lh));
+  }
+
   function wrap(text, x, y, maxWidth, lineHeight) {
     const words = text.split(" ");
     let line = "";
@@ -386,22 +426,6 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     for (let i = 0; i < n; i++) {
       branch(x2, y2, len * (.68 + rand() * .14), angle + (rand() - .5) * 1.1, depth - 1, width * .68, color);
     }
-  }
-
-  function drawIllustration(img, x, y, w, h) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(x, y, w, h);
-    ctx.clip();
-    const scale = Math.max(w / img.naturalWidth, h / img.naturalHeight);
-    const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
-    ctx.drawImage(img, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
-    const vignette = ctx.createRadialGradient(x + w / 2, y + h / 2, h * .35, x + w / 2, y + h / 2, h * .85);
-    vignette.addColorStop(0, "transparent");
-    vignette.addColorStop(1, "#1a120888");
-    ctx.fillStyle = vignette;
-    ctx.fillRect(x, y, w, h);
-    ctx.restore();
   }
 
   function drawArt(x, y, w, h, pal) {
@@ -466,7 +490,75 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ctx.restore();
   }
 
+  function drawFullArtCard(c) {
+    const pal = PALETTES[c.pick.dlc ? "dlc" : c.pick.cat];
+    const gold = "#d4b46a";
+    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    roundRect(0, 0, W, H, 28);
+    ctx.clip();
+    const scale = Math.max(W / c.art.naturalWidth, H / c.art.naturalHeight);
+    const iw = c.art.naturalWidth * scale, ih = c.art.naturalHeight * scale;
+    ctx.drawImage(c.art, (W - iw) / 2, (H - ih) / 2, iw, ih);
+    ctx.restore();
+
+    roundRect(28, 28, W - 56, 64, 10);
+    ctx.fillStyle = "#0b0a07d9";
+    ctx.fill();
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = gold;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    fitText(c.title, W - 100, 34, 700, '"Cormorant SC", Georgia, serif');
+    ctx.fillText(c.title, 46, 61);
+
+    const y0 = H - 340;
+    roundRect(28, y0, W - 56, 312, 12);
+    ctx.fillStyle = "#ece3cbf0";
+    ctx.fill();
+    ctx.strokeStyle = gold;
+    ctx.stroke();
+
+    ctx.fillStyle = "#1e1910";
+    fitText(c.pick.name, W - 280, 25, 600, "Spectral, Georgia, serif");
+    ctx.fillText(c.pick.name, 48, y0 + 32);
+    ctx.textAlign = "right";
+    ctx.fillStyle = pal.accent;
+    ctx.font = '700 19px "Cormorant SC", Georgia, serif';
+    ctx.fillText(`${LABELS[c.pick.cat]} · ${RARITY[c.pick.cat]}`, W - 48, y0 + 32);
+    ctx.textAlign = "left";
+    ctx.strokeStyle = "#b39b62";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(48, y0 + 56);
+    ctx.lineTo(W - 48, y0 + 56);
+    ctx.stroke();
+
+    ctx.textBaseline = "top";
+    ctx.fillStyle = "#2a2418";
+    fitWrap(c.loreText, 48, y0 + 68, W - 96, 176, 21, "400");
+
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#6b5f45";
+    ctx.font = '500 17px "Cormorant SC", Georgia, serif';
+    ctx.fillText(`N° ${String(c.number).padStart(3, "0")}/${DATA.length} · La Forge des Sans-éclat`, 48, y0 + 280);
+    roundRect(W - 166, y0 + 256, 118, 48, 10);
+    ctx.fillStyle = "#15120c";
+    ctx.fill();
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = gold;
+    ctx.textAlign = "center";
+    ctx.font = '700 28px "Cormorant SC", Georgia, serif';
+    ctx.fillText(`${c.atk} / ${c.def}`, W - 107, y0 + 281);
+    ctx.textAlign = "left";
+  }
+
   function drawCard(c) {
+    if (c.art) return drawFullArtCard(c);
     const pal = PALETTES[c.pick.dlc ? "dlc" : c.pick.cat];
     const gold = "#d4b46a";
     ctx.clearRect(0, 0, W, H);
@@ -499,9 +591,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
     // Illustration
     const artX = 34, artY = 108, artW = W - 68, artH = 400;
-    if (c.art) {
-      drawIllustration(c.art, artX, artY, artW, artH);
-    } else {
+    {
       drawArt(artX, artY, artW, artH, pal);
       if (c.artLoading) {
         ctx.fillStyle = "#000000aa";
@@ -538,12 +628,10 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ctx.fill();
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
+    ctx.textBaseline = "top";
     ctx.fillStyle = "#2a2418";
-    ctx.font = '600 21px Spectral, Georgia, serif';
-    wrap(`Origine : ${c.pick.dlc ? "Shadow of the Erdtree" : "Elden Ring"}. Porte le nom de ${c.display} dans l'Entre-terre.`, 54, 626, W - 108, 28);
-    ctx.font = 'italic 21px Spectral, Georgia, serif';
-    ctx.fillStyle = "#4a3f2c";
-    wrap(`« ${c.flavor} »`, 54, 704, W - 108, 28);
+    fitWrap(c.loreText, 54, 604, W - 108, 168, 21, "400");
+    ctx.textBaseline = "alphabetic";
 
     // Pied de carte
     ctx.fillStyle = "#9b917a";
@@ -563,6 +651,30 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ctx.textAlign = "left";
   }
 
+  function pickFrom(list) { return list[randomIndex(list.length)]; }
+
+  function loreParts(pick) {
+    return {
+      origin: pickFrom(pick.dlc ? LORE.dlcOrigins : LORE.origins),
+      region: pickFrom(pick.dlc ? LORE.dlcRegions : LORE.regions),
+      deed: pickFrom(LORE.deeds[pick.cat]),
+      link: pickFrom(LORE.links),
+      ending: pickFrom(LORE.endings),
+    };
+  }
+
+  function loreText(c, g) {
+    const ep = c.ep[g === "f" ? 1 : 0];
+    const p = c.lore;
+    const text = `${p.origin}, ${c.display} erre désormais dans ${p.region}, où ${p.deed}. ${p.link} ${p.ending}`;
+    return text
+      .replaceAll("{e}", g === "f" ? "e" : "")
+      .replaceAll("{il}", g === "f" ? "elle" : "il")
+      .replaceAll("{le}", g === "f" ? "la" : "le")
+      .replaceAll("{caste}", c.pick.name)
+      .replaceAll("{ep}", ep);
+  }
+
   function stats(cat) {
     const base = { boss: 6, pnj: 3, ennemi: 1 }[cat];
     return [base + randomIndex(5), base + randomIndex(5)];
@@ -571,7 +683,8 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   function render() {
     if (!current) return;
     current.title = titleFor(current.display, current.ep, gender());
-    current.flavor = current.flavorRaw.replaceAll("{e}", gender() === "f" ? "e" : "");
+    current.loreText = loreText(current, gender());
+    $("lore").textContent = current.loreText;
     $("title").textContent = current.title;
     $("caste").textContent = current.pick.name;
     $("tags").replaceChildren(...[
@@ -588,11 +701,11 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
   function artPrompt(pick) {
     return [
-      "Medieval illuminated manuscript illustration, ink and gold leaf on aged parchment",
-      "dark fantasy, gothic bestiary page, muted earthy colors, ornate border",
+      "Full-art dark fantasy collectible trading card, portrait format, ornate gilded medieval frame",
+      "illuminated manuscript illustration, ink and gold leaf on aged parchment, muted earthy colors",
       ART_HINTS[pick.cat],
-      `named ${pick.name}`,
-      "no text, no letters",
+      `inspired by ${pick.name}`,
+      "no text, no letters, no words",
     ].join(", ");
   }
 
@@ -600,13 +713,13 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     const img = new Image();
     img.crossOrigin = "anonymous";
     const seed = randomIndex(1e6);
-    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(artPrompt(c.pick))}?width=600&height=400&seed=${seed}&nologo=true`;
+    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(artPrompt(c.pick))}?width=630&height=880&seed=${seed}&nologo=true`;
     c.artLoading = true;
     const done = (ok) => {
       if (current !== c || !c.artLoading) return;
       c.artLoading = false;
       if (ok) c.art = img;
-      else $("status").textContent = "Illustration indisponible pour l'instant : la carte garde son motif doré.";
+      else $("status").textContent = "Le générateur d'images ne répond pas : voici une carte de secours. Reforge pour réessayer.";
       render();
     };
     img.onload = () => done(true);
@@ -623,7 +736,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     const [atk, def] = stats(pick.cat);
     current = {
       display, pick, ep, atk, def,
-      flavorRaw: FLAVORS[randomIndex(FLAVORS.length)],
+      lore: loreParts(pick),
       number: DATA.indexOf(pick) + 1,
     };
     $("status").textContent = "";
@@ -632,6 +745,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     render();
     replay($("title"));
     replay($("caste"));
+    replay($("lore"));
   }
 
   $("prenom").addEventListener("input", () => {
