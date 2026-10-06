@@ -135,7 +135,7 @@ button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 @keyframes flash { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
 .card-wrap { display: grid; gap: .5rem; justify-items: center; }
-#card { width: 100%; max-width: 320px; height: auto; aspect-ratio: 2 / 3; border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, .6); }
+#card { width: 100%; max-width: 320px; height: auto; aspect-ratio: 1065 / 1477; border-radius: 14px; box-shadow: 0 12px 40px rgba(0, 0, 0, .6); }
 .card-wrap small { color: var(--muted); font-size: .8rem; text-align: center; }
 
 .codex h2 { font-family: var(--display); color: var(--gold); letter-spacing: .1em; font-size: 1.4rem; margin: 0 0 .3rem; }
@@ -193,7 +193,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
       <p class="status" id="status"></p>
     </div>
     <div class="card-wrap">
-      <canvas id="card" width="1024" height="1536" role="img" aria-label="Carte à collectionner du personnage forgé"></canvas>
+      <canvas id="card" width="1065" height="1477" role="img" aria-label="Carte à collectionner du personnage forgé"></canvas>
       <small id="card-hint">Clic droit ou appui long sur la carte pour l'enregistrer.</small>
     </div>
   </section>
@@ -333,7 +333,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   const MASC = new Set("pierre philippe jerome baptiste maxime antoine guillaume theophile luca joshua stephane christophe alexandre etienne jeremie emile achille hercule aime rene andre jose elie noe mike steve dave bruce kyle shane wayne jesse moussa issa yahya hamza mustapha mustafa ilya nikita george jean-baptiste jean-marie gilles jacques yves charles lucas matteo mattia andrea".split(" "));
 
   const ARTWORKS = Array.from({ length: 9 }, (_, i) => `illustrations/art-${i + 1}.jpg`);
-  const FRAME_SRC = "illustrations/cadre.webp";
+  const FRAME_SRC = "illustrations/cadre-holo.webp";
 
   const ILLUSTRATIONS = new Map();
   function illustration(src) {
@@ -395,20 +395,20 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     el.classList.add("flash");
   }
 
-  // ---- Carte : cadre illustrations/cadre.webp (1024 × 1536), zones mesurées sur le cadre ----
-  const W = 1024, H = 1536;
-  const INK = "#1a1108";
+  // ---- Carte : cadre illustrations/cadre-holo.webp (1065 × 1477), zones mesurées sur le cadre ----
+  const W = 1065, H = 1477;
+  const INK = "#0e1630";
   const SERIF = '"Cormorant SC", Georgia, serif';
   const BODY = "Spectral, Georgia, serif";
   const ZONE = {
-    art: { x: 92, y: 205, w: 840, h: 557 },
-    title: { x: 140, cy: 132, w: 680 },
-    cost: { cx: 887, cy: 134 },
-    type: { x: 155, cy: 831, w: 660 },
-    rarity: { cx: 887, cy: 831 },
-    text: { x: 145, y: 930, w: 740, bottom: 1318 },
-    stats: { cx: 856, cy: 1393 },
-    foot: { x: 140, y: 1428 },
+    art: { x: 94, y: 167, w: 880, h: 641 },
+    title: { x: 92, cy: 113, w: 800 },
+    cost: { cx: 958, cy: 112 },
+    type: { x: 96, cy: 863, w: 800 },
+    rarity: { cx: 950, cy: 863 },
+    text: { x: 112, y: 936, w: 840, bottom: 1300 },
+    stats: { x: 830, y: 1318, w: 160, h: 70 },
+    foot: { x: 96, y: 1408 },
   };
   const GEM = { boss: "#c0392b", pnj: "#3f7cc0", ennemi: "#5f6b4a", dlc: "#e0662f" };
   const COST = { boss: 3, pnj: 2, ennemi: 1 };
@@ -498,62 +498,91 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ctx.restore();
   }
 
+  function glowText(text, x, y) {
+    ctx.save();
+    ctx.shadowColor = "rgba(255,255,255,.9)";
+    ctx.shadowBlur = 10;
+    ctx.fillText(text, x, y);
+    ctx.shadowBlur = 4;
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+
+  function plaque({ x, y, w, h }) {
+    const r = 16;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+    const g = ctx.createLinearGradient(x, y, x + w, y + h);
+    g.addColorStop(0, "#1b2a55");
+    g.addColorStop(1, "#0b1230");
+    ctx.fillStyle = g;
+    ctx.fill();
+    const rim = ctx.createLinearGradient(x, y, x + w, y);
+    ["#7fd8ff", "#c79bff", "#ffd27a", "#8affc8"].forEach((c, i, a) => rim.addColorStop(i / (a.length - 1), c));
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = rim;
+    ctx.stroke();
+  }
+
   function drawCard(c) {
     const cat = c.pick.cat;
     const frame = illustration(FRAME_SRC);
     ctx.clearRect(0, 0, W, H);
+    if (frame.complete && frame.naturalWidth) ctx.drawImage(frame, 0, 0, W, H);
     drawArt(c);
-    if (frame.complete && frame.naturalWidth) {
-      ctx.drawImage(frame, 0, 0, W, H);
-    }
 
     ctx.fillStyle = INK;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
     fitText(c.title, ZONE.title.w, 50, 700, SERIF);
-    ctx.fillText(c.title, ZONE.title.x, ZONE.title.cy);
-    costGem(ZONE.cost.cx, ZONE.cost.cy, 32, GEM[c.pick.dlc ? "dlc" : cat], COST[cat]);
+    glowText(c.title, ZONE.title.x, ZONE.title.cy);
+    costGem(ZONE.cost.cx, ZONE.cost.cy, 28, GEM[c.pick.dlc ? "dlc" : cat], COST[cat]);
 
     ctx.fillStyle = INK;
     ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
     fitText(SUBTYPE[cat], ZONE.type.w, 40, 700, SERIF);
-    ctx.fillText(SUBTYPE[cat], ZONE.type.x, ZONE.type.cy);
+    glowText(SUBTYPE[cat], ZONE.type.x, ZONE.type.cy);
     setSymbol(ZONE.rarity.cx, ZONE.rarity.cy, cat);
 
     const t = ZONE.text;
     ctx.textBaseline = "top";
     ctx.fillStyle = INK;
-    fitText(c.pick.name, t.w, 36, 700, BODY);
-    ctx.fillText(c.pick.name, t.x, t.y);
-    ctx.strokeStyle = "rgba(26,17,8,.4)";
+    fitText(c.pick.name, t.w, 38, 700, BODY);
+    glowText(c.pick.name, t.x, t.y);
+    ctx.strokeStyle = "rgba(14,22,48,.45)";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(t.x, t.y + 54);
-    ctx.lineTo(t.x + t.w, t.y + 54);
+    ctx.moveTo(t.x, t.y + 56);
+    ctx.lineTo(t.x + t.w, t.y + 56);
     ctx.stroke();
-    const top = t.y + 72;
-    let size = 31, lines, lh;
+    const top = t.y + 74;
+    let size = 33, lines, lh;
     do {
       ctx.font = `italic ${size}px ${BODY}`;
       lh = Math.round(size * 1.3);
       lines = wrapLines(c.loreText, t.w);
       size -= 1;
     } while (lines.length * lh > t.bottom - top && size > 16);
-    lines.forEach((l, i) => ctx.fillText(l, t.x, top + i * lh));
+    lines.forEach((l, i) => glowText(l, t.x, top + i * lh));
 
-    ctx.fillStyle = INK;
+    plaque(ZONE.stats);
+    ctx.fillStyle = "#f4f1ff";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = `700 46px ${SERIF}`;
-    ctx.fillText(`${c.atk}/${c.def}`, ZONE.stats.cx, ZONE.stats.cy);
+    ctx.font = `700 48px ${SERIF}`;
+    ctx.fillText(`${c.atk}/${c.def}`, ZONE.stats.x + ZONE.stats.w / 2, ZONE.stats.y + ZONE.stats.h / 2 + 2);
 
     ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = "#e3d8bd";
-    ctx.font = `600 21px ${BODY}`;
-    ctx.fillText(`${String(c.number).padStart(3, "0")}/${DATA.length} ${RARITY_STYLE[cat][2]} · FSE · FR`, ZONE.foot.x, ZONE.foot.y);
-    ctx.font = `italic 20px ${BODY}`;
-    ctx.fillText("Illus. La Forge des Sans-éclat · Projet de fan, non officiel", ZONE.foot.x, ZONE.foot.y + 28);
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = INK;
+    ctx.font = `600 22px ${BODY}`;
+    glowText(`${String(c.number).padStart(3, "0")}/${DATA.length} ${RARITY_STYLE[cat][2]} · FSE · FR  —  Illus. La Forge des Sans-éclat · Projet de fan, non officiel`, ZONE.foot.x, ZONE.foot.y);
   }
 
   function pickFrom(list) { return list[randomIndex(list.length)]; }
