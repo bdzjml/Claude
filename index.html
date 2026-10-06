@@ -283,42 +283,49 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ["Tueur de Réprouvés", "Tueuse de Réprouvés"],
   ];
 
-  // {e} devient "e" au féminin, {il} devient "elle"
+  // Description : un fait du lore d'Elden Ring + la caste + une touche d'époque contemporaine.
+  // {e} → "e" au féminin, {il}/{Il} → elle/Elle, {le} → la, {name} → prénom, {caste}, {ep} → épithète
   const LORE = {
-    origins: [
-      "Né{e} sous la lumière déclinante de l'Arbre-Monde",
-      "Sans-éclat rappelé{e} d'entre les morts par la grâce",
-      "Banni{e} de Leyndell, capitale royale",
-      "Formé{e} aux arts de la pierre d'éclat à Raya Lucaria",
-      "Rescapé{e} de la putréfaction écarlate de Caelid",
-      "Venu{e} d'au-delà de la brume, sans nom ni bannière",
-      "Élevé{e} parmi les Réprouvés, dans les égouts de la capitale",
-      "Remonté{e} des profondeurs du fleuve Siofra",
+    canon: [
+      "Depuis que Marika a brisé le Cercle d'Elden, {name} arpente l'Entre-terre en quête des Grandes Runes.",
+      "Rappelé{e} d'entre les morts par la grâce, {name} est un{e} Sans-éclat de plus en route vers l'Arbre-Monde.",
+      "{name} a survécu à la Nuit des Couteaux noirs, ce qui en dit long sur son talent pour éviter les embrouilles.",
+      "Guidé{e} par la grâce dorée, {name} a quitté la Table ronde sans prévenir les Deux Doigts.",
+      "{name} a voulu entrer au château de Voilorage sans passer par Margit. Ça ne s'est pas bien passé.",
+      "Formé{e} à Raya Lucaria sous l'œil de Rennala, {name} maîtrise la pierre d'éclat mieux que son agenda.",
+      "{name} a vu Radahn retenir les étoiles à mains nues et le raconte à chaque repas de famille.",
+      "Rescapé{e} de la putréfaction écarlate de Caelid, {name} se méfie de tout ce qui fleurit.",
+      "{name} a ouvert un coffre au fond d'une grotte. Patches l'attendait. Depuis, {il} ne fait plus confiance à personne.",
+      "En selle sur Torrent, {name} a traversé l'Entre-terre, de Nécrolimbe jusqu'aux cimes des Géants.",
+      "{name} a appris que Marika et Radagon ne faisaient qu'un, et a dû s'asseoir un moment.",
+      "Godrick a voulu greffer un bras de {name} à sa collection. {Il} a poliment refusé.",
+      "{name} a juré fidélité à Ranni, sans trop lire les petites lignes du contrat.",
     ],
-    dlcOrigins: [
-      "Passé{e} dans les terres de l'Ombre sur les traces de Miquella",
-      "Né{e} à l'ombre de l'Arbre-Ombre, loin des yeux de Marika",
+    canonDlc: [
+      "Sur les traces de Miquella, {name} a posé la main sur le cocon de Mohg et s'est réveillé{e} dans les terres de l'Ombre.",
+      "{name} a affronté les flammes de Messmer l'Empaleur et n'a jamais retrouvé ses sourcils.",
+      "Dans le Royaume de l'Ombre, {name} a découvert que les fragments de l'Arbre-Ombre comptent plus que les runes.",
     ],
-    regions: [
-      "les plaines de Nécrolimbe", "les rives brumeuses de Liurnia des Lacs", "les terres rougeoyantes de Caelid",
-      "le plateau d'Altus", "les pentes fumantes du mont Gelmir", "les remparts de Leyndell",
-      "les Montagnes des Géants", "les ruines suspendues de Farum Azula", "Nokron, la Cité éternelle",
+    caste: [
+      "Les chroniques {le} rangent parmi les « {caste} », pour le meilleur et surtout pour le pire.",
+      "On {le} confond souvent avec « {caste} », ce qui lui vaut des invasions non sollicitées.",
+      "Son destin croise celui de « {caste} » plus souvent qu'{il} ne le voudrait.",
+      "Les messages au sol devant chez {le} préviennent tous : « {caste} en vue ».",
     ],
-    dlcRegions: ["les terres de l'Ombre", "les abords de l'Arbre-Ombre"],
-    deeds: {
-      boss: ["{il} garde un fragment de Grande Rune", "{il} règne sur des légions de soldats déchus", "{il} attend les Sans-éclat assez fous pour franchir sa brume"],
-      pnj: ["{il} partage ses secrets près des sites de grâce", "{il} vend ses services contre quelques runes", "{il} poursuit une quête que nul ne comprend vraiment"],
-      ennemi: ["{il} hante les routes en quête de runes", "{il} monte la garde sans jamais faiblir", "{il} rôde à l'affût du moindre Sans-éclat"],
-    },
-    links: [
-      "Certains jurent l'avoir vu{e} sous les traits de « {caste} ».",
-      "Les chroniques {le} rangent parmi les « {caste} ».",
-      "Les anciens disent qu'{il} porte la marque de « {caste} ».",
-    ],
-    endings: [
-      "On l'appelle « {ep} », et nul n'ose le contester.",
-      "Le titre de « {ep} » lui fut donné dans le sang.",
-      "Aux sites de grâce, on murmure « {ep} » avant de prier.",
+    modern: [
+      "Son titre de « {ep} » trône désormais en tête de son profil LinkedIn.",
+      "Entre deux boss, {il} cherche encore le code Wi-Fi du site de grâce.",
+      "{Il} a invoqué de l'aide en ligne contre un boss, mais jure sur Instagram l'avoir battu seul{e}.",
+      "Ses fioles de larmes écarlates arrivent désormais par Uber Eats, toujours tièdes.",
+      "{Il} a perdu 400 000 runes en tombant d'une falaise, à peu près le prix d'un deux-pièces à Paris.",
+      "Le matin, {il} affronte Malenia ; le soir, le RER B. Personne ne sait lequel est le plus cruel.",
+      "En réunion Teams, {name} répète « laissez-moi la solo » dès qu'un dossier devient difficile.",
+      "Sa trottinette électrique n'a pas de double saut, et {il} le vit très mal.",
+      "Le groupe WhatsApp de la Table ronde l'a mis{e} en sourdine après le quarantième mème.",
+      "{name} meurt plus souvent que son téléphone ne se décharge, et ce n'est pas peu dire.",
+      "Ses runes dorment en crypto. Comme d'habitude, tout a fini au pied d'une falaise.",
+      "Au bureau, on l'appelle « {ep} ». Personne n'ose demander pourquoi.",
+      "{Il} a mis « {ep} » dans sa bio Tinder. Les matchs ont chuté, les invasions ont explosé.",
     ],
   };
 
@@ -646,24 +653,25 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
   function loreParts(pick) {
     return {
-      origin: pickFrom(pick.dlc ? LORE.dlcOrigins : LORE.origins),
-      region: pickFrom(pick.dlc ? LORE.dlcRegions : LORE.regions),
-      deed: pickFrom(LORE.deeds[pick.cat]),
-      link: pickFrom(LORE.links),
-      ending: pickFrom(LORE.endings),
+      canon: pickFrom(pick.dlc ? LORE.canonDlc : LORE.canon),
+      caste: pickFrom(LORE.caste),
+      modern: pickFrom(LORE.modern),
     };
   }
 
   function loreText(c, g) {
-    const ep = c.ep[g === "f" ? 1 : 0];
+    const f = g === "f";
+    const ep = c.ep[f ? 1 : 0];
     const p = c.lore;
-    const text = `${p.origin}, ${c.display} erre désormais dans ${p.region}, où ${p.deed}. ${p.link} ${p.ending}`;
-    return text
-      .replaceAll("{e}", g === "f" ? "e" : "")
-      .replaceAll("{il}", g === "f" ? "elle" : "il")
-      .replaceAll("{le}", g === "f" ? "la" : "le")
+    return `${p.canon} ${p.caste} ${p.modern}`
+      .replaceAll("{name}", c.display)
+      .replaceAll("{e}", f ? "e" : "")
+      .replaceAll("{Il}", f ? "Elle" : "Il")
+      .replaceAll("{il}", f ? "elle" : "il")
+      .replaceAll("{le}", f ? "la" : "le")
       .replaceAll("{caste}", c.pick.name)
       .replaceAll("{ep}", ep)
+      .replaceAll("chez la", "chez elle").replaceAll("chez le", "chez lui")
       .replaceAll("« ", "«\u00a0")
       .replaceAll(" »", "\u00a0»");
   }
