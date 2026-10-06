@@ -1,0 +1,308 @@
+<title>Tarnished Name Forge</title>
+<meta name="description" content="Entre ton prénom, découvre quel boss, PNJ ou ennemi d'Elden Ring tu es.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: une colonne étroite façon écran de jeu — saisie, puis le nom posé au-dessus d'une barre de vie de boss. */
+:root {
+  --bg: #100f0b;
+  --surface: #1a1913;
+  --line: #3a3628;
+  --fg: #e6dcc0;
+  --muted: #9b917a;
+  --gold: #d4b46a;
+  --blood: #9e2a22;
+  --rot: #c0603a;
+  --display: "Cormorant SC", "Cormorant Garamond", Georgia, serif;
+  --body: "Spectral", Georgia, "Times New Roman", serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body {
+  font-family: var(--body);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  padding-inline: 16px;
+  padding-block: 3rem 4rem;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212, 180, 106, 0.12), transparent 70%),
+    var(--bg);
+  min-height: 100%;
+}
+main { max-width: 38rem; margin-inline: auto; display: grid; gap: 2.5rem; }
+
+header { text-align: center; display: grid; gap: .5rem; }
+.eyebrow {
+  font-family: var(--display);
+  letter-spacing: .3em;
+  font-size: .8rem;
+  color: var(--muted);
+}
+h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 7vw, 3.4rem);
+  line-height: 1.05;
+  margin: 0;
+  color: var(--gold);
+  letter-spacing: .04em;
+  text-wrap: balance;
+}
+header p { margin: 0; color: var(--muted); font-style: italic; }
+
+form { display: grid; gap: 1rem; }
+label[for="prenom"] { font-family: var(--display); letter-spacing: .15em; font-size: .9rem; color: var(--muted); }
+.row { display: flex; gap: .6rem; flex-wrap: wrap; }
+input[type="text"] {
+  flex: 1 1 14rem;
+  min-width: 0;
+  font: inherit;
+  font-size: 1.2rem;
+  padding: .75rem 1rem;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+input[type="text"]:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+button {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: .12em;
+  padding: .75rem 1.3rem;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: var(--bg);
+}
+button.ghost { background: transparent; color: var(--gold); }
+button:hover { filter: brightness(1.1); }
+button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: .5rem; border: 0; padding: 0; margin: 0; }
+.filters legend { font-family: var(--display); letter-spacing: .15em; font-size: .9rem; color: var(--muted); margin-bottom: .4rem; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip span {
+  display: inline-block;
+  padding: .3rem .8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: .9rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.chip input:checked + span { border-color: var(--gold); color: var(--gold); }
+.chip input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.result {
+  display: grid;
+  gap: 1.4rem;
+  padding-block: 2rem;
+  border-block: 1px solid var(--line);
+}
+.result .who { font-style: italic; color: var(--muted); margin: 0; }
+.bossbar { display: grid; gap: .35rem; }
+.bossbar .name {
+  font-family: var(--body);
+  font-size: clamp(1.35rem, 4.5vw, 1.8rem);
+  line-height: 1.2;
+  margin: 0;
+  text-shadow: 0 1px 0 #000;
+  overflow-wrap: anywhere;
+}
+.bar {
+  height: 10px;
+  border: 1px solid #5a5240;
+  background: #0a0907;
+  position: relative;
+  overflow: hidden;
+}
+.bar i {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, #c23a2e, var(--blood));
+  transform-origin: left;
+  animation: fill 900ms cubic-bezier(.2,.7,.2,1);
+}
+@keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.tags { display: flex; gap: .5rem; flex-wrap: wrap; }
+.tag {
+  font-family: var(--display);
+  font-size: .8rem;
+  letter-spacing: .15em;
+  padding: .15rem .6rem;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+.tag.dlc { border-color: var(--rot); color: var(--rot); }
+.forged { display: grid; gap: .2rem; }
+.forged small { font-family: var(--display); letter-spacing: .15em; color: var(--muted); }
+.forged strong { font-family: var(--display); font-weight: 700; font-size: clamp(1.5rem, 5vw, 2.1rem); color: var(--gold); line-height: 1.15; overflow-wrap: anywhere; }
+.actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+.status { min-height: 1.4em; margin: 0; color: var(--muted); font-size: .9rem; }
+
+.codex h2 { font-family: var(--display); color: var(--gold); letter-spacing: .1em; font-size: 1.4rem; margin: 0 0 .3rem; }
+.codex > p { margin: 0 0 1rem; color: var(--muted); }
+details { border-top: 1px solid var(--line); padding-block: .7rem; }
+summary { cursor: pointer; font-family: var(--display); font-size: 1.1rem; letter-spacing: .08em; }
+summary span { color: var(--muted); font-family: var(--body); font-size: .9rem; font-variant-numeric: tabular-nums; }
+details ul { columns: 2 14rem; column-gap: 1.5rem; padding: 0; margin: .8rem 0 0; list-style: none; font-size: .95rem; }
+details li { break-inside: avoid; padding-block: .1rem; color: var(--fg); }
+details li.dlc::after { content: " · DLC"; color: var(--rot); font-size: .75rem; letter-spacing: .1em; }
+footer { color: var(--muted); font-size: .85rem; text-align: center; }
+
+@media (prefers-reduced-motion: reduce) { .bar i { animation: none; } }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">Entre les Terres Intermédiaires</div>
+    <h1>Tarnished Name Forge</h1>
+    <p>Ton prénom, ton destin. Même prénom, même sentence.</p>
+  </header>
+
+  <form id="forge" autocomplete="off">
+    <label for="prenom">Ton prénom, Sans-éclat</label>
+    <div class="row">
+      <input id="prenom" type="text" maxlength="40" value="Camille" required>
+      <button type="submit">Forger</button>
+    </div>
+    <fieldset class="filters">
+      <legend>Tirer parmi</legend>
+      <label class="chip"><input type="radio" name="cat" id="cat-all" value="all" checked><span>Tout</span></label>
+      <label class="chip"><input type="radio" name="cat" id="cat-boss" value="boss"><span>Boss</span></label>
+      <label class="chip"><input type="radio" name="cat" id="cat-pnj" value="pnj"><span>PNJ</span></label>
+      <label class="chip"><input type="radio" name="cat" id="cat-ennemi" value="ennemi"><span>Ennemis</span></label>
+    </fieldset>
+  </form>
+
+  <section class="result" aria-live="polite">
+    <p class="who" id="who"></p>
+    <div class="bossbar">
+      <p class="name" id="name"></p>
+      <div class="bar"><i id="bar"></i></div>
+    </div>
+    <div class="tags" id="tags"></div>
+    <div class="forged">
+      <small>Ton titre forgé</small>
+      <strong id="title"></strong>
+    </div>
+    <div class="actions">
+      <button type="button" class="ghost" id="reroll">Autre destin</button>
+      <button type="button" class="ghost" id="copy">Copier</button>
+    </div>
+    <p class="status" id="status"></p>
+  </section>
+
+  <section class="codex">
+    <h2>Le Codex</h2>
+    <p id="codex-count"></p>
+    <div id="codex"></div>
+  </section>
+
+  <footer>Noms officiels en anglais, jeu de base et Shadow of the Erdtree. Projet de fan, sans lien avec FromSoftware ni Bandai Namco.</footer>
+</main>
+
+<script src="names.js"></script>
+<script>
+(() => {
+  const DATA = window.ER_DATA;
+  const LABELS = { boss: "Boss", pnj: "PNJ", ennemi: "Ennemi" };
+  const PLURAL = { boss: "Boss", pnj: "PNJ", ennemi: "Ennemis" };
+
+  const EPITHETS = [...new Set(
+    DATA.filter((e) => e.cat !== "ennemi").flatMap((e) => {
+      const comma = e.name.match(/^[^,]+, (.+)$/);
+      if (comma) return [{ sep: ", ", text: comma[1] }];
+      const the = e.name.match(/(?<! of) (the [A-Z][\w'-]*(?: [A-Z][\w'-]*)*)$/);
+      return the ? [{ sep: " ", text: the[1] }] : [];
+    }).map((x) => JSON.stringify(x))
+  )].map((s) => JSON.parse(s));
+
+  const $ = (id) => document.getElementById(id);
+  let salt = 0;
+
+  const normalize = (s) => s.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ");
+  const capitalize = (s) => s.trim().replace(/\s+/g, " ").replace(/(^|[\s-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase());
+
+  function hash(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
+    }
+    return h >>> 0;
+  }
+
+  function currentCat() {
+    return document.querySelector('input[name="cat"]:checked').value;
+  }
+
+  function forge() {
+    const raw = $("prenom").value;
+    const key = normalize(raw);
+    if (!key) {
+      $("status").textContent = "Entre un prénom pour forger ton nom.";
+      return;
+    }
+    const cat = currentCat();
+    const pool = cat === "all" ? DATA : DATA.filter((e) => e.cat === cat);
+    const pick = pool[hash(`${key}|${cat}|${salt}`) % pool.length];
+    const ep = EPITHETS[hash(`${key}|ep|${salt}`) % EPITHETS.length];
+    const display = capitalize(raw);
+
+    $("who").textContent = `${display}, dans l'Entre-terre, tu es…`;
+    $("name").textContent = pick.name;
+    $("tags").innerHTML = "";
+    const tags = [LABELS[pick.cat], pick.dlc ? "Shadow of the Erdtree" : "Jeu de base"];
+    tags.forEach((t, i) => {
+      const el = document.createElement("span");
+      el.className = "tag" + (i === 1 && pick.dlc ? " dlc" : "");
+      el.textContent = t;
+      $("tags").append(el);
+    });
+    $("title").textContent = display + ep.sep + ep.text;
+    $("status").textContent = "";
+
+    const bar = $("bar");
+    bar.style.animation = "none";
+    void bar.offsetWidth;
+    bar.style.animation = "";
+  }
+
+  $("forge").addEventListener("submit", (e) => { e.preventDefault(); salt = 0; forge(); });
+  document.querySelectorAll('input[name="cat"]').forEach((r) => r.addEventListener("change", () => { salt = 0; forge(); }));
+  $("reroll").addEventListener("click", () => { salt++; forge(); });
+  $("copy").addEventListener("click", () => {
+    const text = `${$("name").textContent} — ${$("title").textContent}`;
+    navigator.clipboard.writeText(text)
+      .then(() => { $("status").textContent = "Copié."; })
+      .catch(() => {
+        const range = document.createRange();
+        range.selectNodeContents($("title"));
+        const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+        $("status").textContent = "Copie bloquée : texte sélectionné, fais Ctrl+C.";
+      });
+  });
+
+  $("codex-count").textContent = `${DATA.length} noms répertoriés, dont ${DATA.filter((e) => e.dlc).length} issus du DLC.`;
+  ["boss", "pnj", "ennemi"].forEach((cat) => {
+    const list = DATA.filter((e) => e.cat === cat).sort((a, b) => a.name.localeCompare(b.name));
+    const d = document.createElement("details");
+    d.innerHTML = `<summary>${PLURAL[cat]} <span>(${list.length})</span></summary>`;
+    const ul = document.createElement("ul");
+    list.forEach((e) => {
+      const li = document.createElement("li");
+      li.textContent = e.name;
+      if (e.dlc) li.className = "dlc";
+      ul.append(li);
+    });
+    d.append(ul);
+    $("codex").append(d);
+  });
+
+  forge();
+})();
+</script>
