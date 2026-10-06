@@ -1,5 +1,5 @@
-<title>Tarnished Name Forge</title>
-<meta name="description" content="Entre ton prénom, découvre quel boss, PNJ ou ennemi d'Elden Ring tu es.">
+<title>La Forge des Sans-éclat</title>
+<meta name="description" content="Entre ton prénom et découvre quel boss, PNJ ou ennemi d'Elden Ring tu es.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
 <style>
@@ -150,7 +150,7 @@ summary { cursor: pointer; font-family: var(--display); font-size: 1.1rem; lette
 summary span { color: var(--muted); font-family: var(--body); font-size: .9rem; font-variant-numeric: tabular-nums; }
 details ul { columns: 2 14rem; column-gap: 1.5rem; padding: 0; margin: .8rem 0 0; list-style: none; font-size: .95rem; }
 details li { break-inside: avoid; padding-block: .1rem; color: var(--fg); }
-details li.dlc::after { content: " · DLC"; color: var(--rot); font-size: .75rem; letter-spacing: .1em; }
+details li.dlc::after { content: " · extension"; color: var(--rot); font-size: .75rem; letter-spacing: .1em; }
 footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
 @media (prefers-reduced-motion: reduce) { .bar i { animation: none; } }
@@ -159,7 +159,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 <main>
   <header>
     <div class="eyebrow">Entre les Terres Intermédiaires</div>
-    <h1>Tarnished Name Forge</h1>
+    <h1>La Forge des Sans-éclat</h1>
     <p>Ton prénom, ton destin. Même prénom, même sentence.</p>
   </header>
 
@@ -202,7 +202,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     <div id="codex"></div>
   </section>
 
-  <footer>Noms officiels en anglais, jeu de base et Shadow of the Erdtree. Projet de fan, sans lien avec FromSoftware ni Bandai Namco.</footer>
+  <footer>Noms en français, jeu de base et extension Shadow of the Erdtree. Projet de fan, sans lien avec FromSoftware ni Bandai Namco.</footer>
 </main>
 
 <script src="names.js"></script>
@@ -216,8 +216,8 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     DATA.filter((e) => e.cat !== "ennemi").flatMap((e) => {
       const comma = e.name.match(/^[^,]+, (.+)$/);
       if (comma) return [{ sep: ", ", text: comma[1] }];
-      const the = e.name.match(/(?<! of) (the [A-Z][\w'-]*(?: [A-Z][\w'-]*)*)$/);
-      return the ? [{ sep: " ", text: the[1] }] : [];
+      const art = e.name.match(/(?<!de) ((?:le |la |l')\p{Lu}.*)$/u);
+      return art ? [{ sep: " ", text: art[1] }] : [];
     }).map((x) => JSON.stringify(x))
   )].map((s) => JSON.parse(s));
 
