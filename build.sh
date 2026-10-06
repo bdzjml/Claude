@@ -9,3 +9,4 @@ mkdir -p dist
   printf '\n</body>\n</html>\n'
 } > dist/index.html
 cp names.js dist/names.js
+rm -rf dist/illustrations && cp -r illustrations dist/illustrations

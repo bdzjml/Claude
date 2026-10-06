@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 880" width="630" height="880">
+<defs>
+  <linearGradient id="parch" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#eadfc4"/><stop offset="1" stop-color="#c9b38a"/>
+  </linearGradient>
+  <radialGradient id="vig" cx=".5" cy=".42" r=".75">
+    <stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#3a2410" stop-opacity=".55"/>
+  </radialGradient>
+  <radialGradient id="halo" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#b8892e" stop-opacity=".55"/><stop offset="1" stop-color="#b8892e" stop-opacity="0"/>
+  </radialGradient>
+  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+    <line x1="0" y1="0" x2="0" y2="7" stroke="#2a1d12" stroke-width="1.6"/>
+  </pattern>
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/>
+    <feColorMatrix values="0 0 0 0 .2  0 0 0 0 .13  0 0 0 0 .05  0 0 0 .16 0"/></filter>
+</defs>
+<rect width="630" height="880" fill="url(#parch)"/>
+<rect width="630" height="880" filter="url(#grain)"/>
+<circle cx="315" cy="300" r="230" fill="url(#halo)"/>
+<g stroke="#b8892e" stroke-width="2" opacity=".6"><line x1="435" y1="240" x2="585" y2="240"/><line x1="433" y1="263" x2="580" y2="293"/><line x1="426" y1="286" x2="564" y2="343"/><line x1="415" y1="307" x2="539" y2="390"/><line x1="400" y1="325" x2="506" y2="431"/><line x1="382" y1="340" x2="465" y2="464"/><line x1="361" y1="351" x2="418" y2="489"/><line x1="338" y1="358" x2="368" y2="505"/><line x1="315" y1="360" x2="315" y2="510"/><line x1="292" y1="358" x2="262" y2="505"/><line x1="269" y1="351" x2="212" y2="489"/><line x1="248" y1="340" x2="165" y2="464"/><line x1="230" y1="325" x2="124" y2="431"/><line x1="215" y1="307" x2="91" y2="390"/><line x1="204" y1="286" x2="66" y2="343"/><line x1="197" y1="263" x2="50" y2="293"/><line x1="195" y1="240" x2="45" y2="240"/><line x1="197" y1="217" x2="50" y2="187"/><line x1="204" y1="194" x2="66" y2="137"/><line x1="215" y1="173" x2="91" y2="90"/><line x1="230" y1="155" x2="124" y2="49"/><line x1="248" y1="140" x2="165" y2="16"/><line x1="269" y1="129" x2="212" y2="-9"/><line x1="292" y1="122" x2="262" y2="-25"/><line x1="315" y1="120" x2="315" y2="-30"/><line x1="338" y1="122" x2="368" y2="-25"/><line x1="361" y1="129" x2="418" y2="-9"/><line x1="382" y1="140" x2="465" y2="16"/><line x1="400" y1="155" x2="506" y2="49"/><line x1="415" y1="173" x2="539" y2="90"/><line x1="426" y1="194" x2="564" y2="137"/><line x1="433" y1="217" x2="580" y2="187"/></g>
+<g fill="#b8892e" opacity=".92">
+  <circle cx="315" cy="200" r="70"/><circle cx="250" cy="230" r="52"/><circle cx="380" cy="230" r="52"/>
+  <circle cx="275" cy="165" r="44"/><circle cx="355" cy="165" r="44"/><circle cx="315" cy="135" r="40"/>
+  <circle cx="210" cy="270" r="36"/><circle cx="420" cy="270" r="36"/>
+</g>
+<g stroke="#2a1d12" stroke-width="2" opacity=".35" fill="none">
+  <path d="M260 210 Q290 200 300 230 M340 190 Q360 170 380 200 M290 150 Q310 130 330 150"/>
+</g>
+<path d="M300 520 Q305 420 296 360 Q290 320 315 280 Q340 320 334 360 Q325 420 330 520Z" fill="#b8892e" stroke="#2a1d12" stroke-width="4"/>
+<path d="M310 300 Q270 280 240 250 M318 300 Q360 270 392 250 M312 330 Q270 320 220 290 M320 330 Q370 320 410 290" stroke="#b8892e" stroke-width="9" fill="none" stroke-linecap="round"/>
+<path d="M305 520 Q260 500 200 515 M325 520 Q370 500 430 515" stroke="#b8892e" stroke-width="6" fill="none"/>
+<path d="M222 520 L226 486 Q218 470 230 460 Q244 456 246 470 L250 486 L262 500 L256 520Z" fill="#2a1d12"/>
+<circle cx="236" cy="452" r="9" fill="#2a1d12"/>
+<path d="M0 560 Q160 520 315 545 Q470 570 630 530 V880 H0Z" fill="url(#hatch)" opacity=".55"/>
+<rect width="630" height="880" fill="url(#vig)"/>
+<rect x="24" y="24" width="582" height="832" rx="16" fill="none" stroke="#2a1d12" stroke-width="4"/>
+<rect x="36" y="36" width="558" height="808" rx="12" fill="none" stroke="#b8892e" stroke-width="3"/>
+<g fill="#b8892e" stroke="#2a1d12" stroke-width="2">
+  <path d="M36 70 L70 36 L80 46 L46 80Z"/><path d="M594 70 L560 36 L550 46 L584 80Z"/>
+  <path d="M36 810 L70 844 L80 834 L46 800Z"/><path d="M594 810 L560 844 L550 834 L584 800Z"/>
+</g>
+</svg>

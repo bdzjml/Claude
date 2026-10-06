@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 880" width="630" height="880">
+<defs>
+  <linearGradient id="parch" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#eadfc4"/><stop offset="1" stop-color="#c9b38a"/>
+  </linearGradient>
+  <radialGradient id="vig" cx=".5" cy=".42" r=".75">
+    <stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#3a2410" stop-opacity=".55"/>
+  </radialGradient>
+  <radialGradient id="halo" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#b8892e" stop-opacity=".55"/><stop offset="1" stop-color="#b8892e" stop-opacity="0"/>
+  </radialGradient>
+  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+    <line x1="0" y1="0" x2="0" y2="7" stroke="#2a1d12" stroke-width="1.6"/>
+  </pattern>
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/>
+    <feColorMatrix values="0 0 0 0 .2  0 0 0 0 .13  0 0 0 0 .05  0 0 0 .16 0"/></filter>
+</defs>
+<rect width="630" height="880" fill="url(#parch)"/>
+<rect width="630" height="880" filter="url(#grain)"/>
+<circle cx="315" cy="300" r="230" fill="url(#halo)"/>
+<g stroke="#b8892e" stroke-width="2" opacity=".6"><line x1="375" y1="150" x2="465" y2="150"/><line x1="372" y1="169" x2="458" y2="196"/><line x1="364" y1="185" x2="436" y2="238"/><line x1="350" y1="199" x2="403" y2="271"/><line x1="334" y1="207" x2="361" y2="293"/><line x1="315" y1="210" x2="315" y2="300"/><line x1="296" y1="207" x2="269" y2="293"/><line x1="280" y1="199" x2="227" y2="271"/><line x1="266" y1="185" x2="194" y2="238"/><line x1="258" y1="169" x2="172" y2="196"/><line x1="255" y1="150" x2="165" y2="150"/><line x1="258" y1="131" x2="172" y2="104"/><line x1="266" y1="115" x2="194" y2="62"/><line x1="280" y1="101" x2="227" y2="29"/><line x1="296" y1="93" x2="269" y2="7"/><line x1="315" y1="90" x2="315" y2="0"/><line x1="334" y1="93" x2="361" y2="7"/><line x1="350" y1="101" x2="403" y2="29"/><line x1="364" y1="115" x2="436" y2="62"/><line x1="372" y1="131" x2="458" y2="104"/></g>
+<path d="M255 180 L275 128 L295 168 L315 116 L335 168 L355 128 L375 180Z" fill="#b8892e" stroke="#2a1d12" stroke-width="4"/>
+<circle cx="275" cy="128" r="6" fill="#8e2a1e"/><circle cx="315" cy="116" r="6" fill="#8e2a1e"/><circle cx="355" cy="128" r="6" fill="#8e2a1e"/>
+<path d="M316 118 L308 146 L322 156 L312 180" stroke="#2a1d12" stroke-width="5" fill="none"/>
+<path d="M260 520 Q262 420 285 360 Q290 320 315 300 Q340 320 345 360 Q368 420 370 520Z" fill="#2a1d12"/>
+<path d="M260 520 Q262 420 285 360 M370 520 Q368 420 345 360" stroke="#b8892e" stroke-width="3" fill="none"/>
+<circle cx="315" cy="288" r="22" fill="#2a1d12"/>
+<path d="M300 276 Q288 252 298 236 Q302 258 310 268Z M330 276 Q342 252 332 236 Q328 258 320 268Z" fill="#2a1d12"/>
+<path d="M392 330 L398 312 L404 330 V520 H392Z" fill="#b8892e" stroke="#2a1d12" stroke-width="2"/>
+<rect x="374" y="330" width="48" height="10" rx="3" fill="#2a1d12" stroke="#b8892e" stroke-width="2"/>
+<path d="M345 380 Q370 360 392 350" stroke="#2a1d12" stroke-width="14" stroke-linecap="round"/>
+<path d="M0 560 Q160 520 315 545 Q470 570 630 530 V880 H0Z" fill="url(#hatch)" opacity=".55"/>
+<rect width="630" height="880" fill="url(#vig)"/>
+<rect x="24" y="24" width="582" height="832" rx="16" fill="none" stroke="#2a1d12" stroke-width="4"/>
+<rect x="36" y="36" width="558" height="808" rx="12" fill="none" stroke="#b8892e" stroke-width="3"/>
+<g fill="#b8892e" stroke="#2a1d12" stroke-width="2">
+  <path d="M36 70 L70 36 L80 46 L46 80Z"/><path d="M594 70 L560 36 L550 46 L584 80Z"/>
+  <path d="M36 810 L70 844 L80 834 L46 800Z"/><path d="M594 810 L560 844 L550 834 L584 800Z"/>
+</g>
+</svg>
