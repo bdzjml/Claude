@@ -1,16 +1,18 @@
 <title>La Forge des Sans-éclat</title>
-<meta name="description" content="Entre ton prénom et découvre quel boss, PNJ ou ennemi d'Elden Ring tu es, avec ta carte à collectionner.">
+<meta name="description" content="Entre ton prénom et forge ta carte d'Elden Ring : titre, appartenance, classe, attributs et légende.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
 <style>
-/* Layout: saisie en haut, puis le titre forgé collé à sa caste, et la carte à collectionner à côté (dessous sur mobile). */
+/* Layout : un champ unique en tête, puis la carte à gauche et la fiche du personnage à droite (empilées sur mobile). */
 :root {
-  --bg: #100f0b;
-  --surface: #1a1913;
-  --line: #3a3628;
-  --fg: #e6dcc0;
-  --muted: #9b917a;
+  --bg: #0d0c09;
+  --surface: #16140f;
+  --surface-2: #1d1a13;
+  --line: #2e2a1f;
+  --fg: #ece4cf;
+  --muted: #9a907a;
   --gold: #d4b46a;
+  --gold-dim: #8f7a48;
   --rot: #c0603a;
   --display: "Cormorant SC", "Cormorant Garamond", Georgia, serif;
   --body: "Spectral", Georgia, "Times New Roman", serif;
@@ -20,193 +22,173 @@
 [hidden] { display: none !important; }
 html, body { background: var(--bg); color: var(--fg); }
 body {
+  margin: 0;
   font-family: var(--body);
-  font-size: 1.05rem;
+  font-size: 1rem;
   line-height: 1.55;
   padding-inline: 16px;
-  padding-block: 3rem 4rem;
-  background:
-    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212, 180, 106, 0.12), transparent 70%),
-    var(--bg);
+  padding-block: 2rem 3rem;
+  background: radial-gradient(ellipse 70% 35% at 50% 0%, rgba(212, 180, 106, .13), transparent 70%), var(--bg);
   min-height: 100%;
 }
-main { max-width: 48rem; margin-inline: auto; display: grid; gap: 2.5rem; }
+main { max-width: 68rem; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.75rem; }
+main > * { min-width: 0; }
 
-header { text-align: center; display: grid; gap: .5rem; }
-.eyebrow { font-family: var(--display); letter-spacing: .3em; font-size: .8rem; color: var(--muted); }
-h1 {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(2.2rem, 7vw, 3.4rem);
-  line-height: 1.05;
-  margin: 0;
-  color: var(--gold);
-  letter-spacing: .04em;
-  text-wrap: balance;
-}
-header p { margin: 0; color: var(--muted); font-style: italic; }
+.top { text-align: center; display: grid; gap: .35rem; }
+.eyebrow { font-family: var(--display); letter-spacing: .3em; font-size: .78rem; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.05; margin: 0; color: var(--gold); letter-spacing: .04em; text-wrap: balance; }
+.top p { margin: 0; color: var(--muted); }
 
-form { display: grid; gap: 1.1rem; max-width: 38rem; width: 100%; margin-inline: auto; }
-.label { font-family: var(--display); letter-spacing: .15em; font-size: .9rem; color: var(--muted); }
-.row { display: flex; gap: .6rem; flex-wrap: wrap; }
-input[type="text"] {
-  flex: 1 1 14rem;
-  min-width: 0;
-  font: inherit;
-  font-size: 1.2rem;
-  padding: .75rem 1rem;
+.forge {
+  width: 100%; max-width: 40rem; margin-inline: auto;
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: .9rem;
+  padding: 1.1rem;
   background: var(--surface);
-  color: var(--fg);
   border: 1px solid var(--line);
-  border-radius: 2px;
+  border-radius: 16px;
 }
-input[type="text"]::placeholder { color: var(--muted); font-style: italic; opacity: 1; }
-input[type="text"]:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-button {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: .12em;
-  padding: .75rem 1.3rem;
-  border-radius: 2px;
-  cursor: pointer;
-  border: 1px solid var(--gold);
-  background: var(--gold);
-  color: var(--bg);
+.field { display: flex; gap: .5rem; }
+#prenom {
+  flex: 1; min-width: 0;
+  font: inherit; font-size: 1.2rem;
+  padding: .8rem 1rem;
+  background: var(--bg); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 10px;
 }
-button.ghost { background: transparent; color: var(--gold); }
-button:hover { filter: brightness(1.1); }
-button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+#prenom::placeholder { color: var(--muted); font-style: italic; opacity: 1; }
+#prenom:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.btn {
+  font-family: var(--display); font-weight: 700; font-size: 1.05rem; letter-spacing: .1em;
+  padding: .75rem 1.3rem; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--gold); background: var(--gold); color: #17130a;
+}
+.btn.ghost { background: transparent; color: var(--gold); }
+.btn:hover { filter: brightness(1.08); }
+.btn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.options { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center; justify-content: space-between; }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; }
+.seg label { position: relative; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span { display: block; padding: .3rem .8rem; border-radius: 999px; font-size: .88rem; color: var(--muted); cursor: pointer; }
+.seg input:checked + span { background: var(--surface-2); color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold-dim); }
+.seg input:focus-visible + span { outline: 2px solid var(--gold); }
+.status { margin: 0; color: var(--muted); font-size: .9rem; }
+.status:empty { display: none; }
 
-.filters { display: flex; flex-wrap: wrap; gap: .5rem; border: 0; padding: 0; margin: 0; }
-.filters legend { margin-bottom: .4rem; }
-.chip input { position: absolute; opacity: 0; pointer-events: none; }
-.chip span {
-  display: inline-block;
-  padding: .3rem .8rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: .9rem;
-  color: var(--muted);
-  cursor: pointer;
-}
-.chip input:checked + span { border-color: var(--gold); color: var(--gold); }
-.chip input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+.result { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.result > * { min-width: 0; }
+@media (min-width: 900px) { .result { grid-template-columns: 380px minmax(0, 1fr); } }
+.card-col { display: grid; gap: .75rem; justify-items: center; }
+@media (min-width: 900px) { .card-col { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); } }
+#card { width: 100%; max-width: 380px; height: auto; aspect-ratio: 1024 / 1536; border-radius: 14px; box-shadow: 0 18px 50px rgba(0, 0, 0, .65); }
+.card-col .btn { width: 100%; max-width: 380px; }
+.card-col small { color: var(--muted); font-size: .8rem; text-align: center; }
 
-.result {
-  display: grid;
-  gap: 2rem;
-  padding-block: 2rem;
-  border-block: 1px solid var(--line);
-  align-items: start;
-}
-@media (min-width: 760px) { .result { grid-template-columns: minmax(0, 1fr) 320px; } }
-.identity { display: grid; gap: 1.2rem; min-width: 0; }
-.forged { display: grid; gap: .1rem; }
-.forged strong {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(1.9rem, 6vw, 2.7rem);
-  color: var(--gold);
-  line-height: 1.08;
-  overflow-wrap: anywhere;
-  text-wrap: balance;
-}
-.forged .caste {
-  margin: 0;
-  font-size: clamp(1.15rem, 3.8vw, 1.45rem);
-  font-style: italic;
-  color: var(--fg);
-  overflow-wrap: anywhere;
-}
-.lore { white-space: pre-line; margin: 0; max-width: 60ch; color: var(--fg); opacity: .9; }
-.tags { display: flex; gap: .5rem; flex-wrap: wrap; }
-.tag {
-  font-family: var(--display);
-  font-size: .8rem;
-  letter-spacing: .15em;
-  padding: .15rem .6rem;
-  border: 1px solid var(--line);
-  color: var(--muted);
-}
-.tag.dlc { border-color: var(--rot); color: var(--rot); }
-.tag.holo { border-color: #8fd3ff; color: #c9b8ff; }
-.actions { display: flex; gap: .6rem; flex-wrap: wrap; }
-.status { min-height: 1.4em; margin: 0; color: var(--muted); font-size: .9rem; }
-.flash { animation: flash 500ms ease-out; }
+.sheet { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.1rem; min-width: 0; padding: 1.4rem; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+.sheet h2 { margin: 0; font-family: var(--display); font-weight: 700; color: var(--gold); font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.08; text-wrap: balance; overflow-wrap: anywhere; }
+.aff { margin: 0; font-size: 1.1rem; font-style: italic; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip { font-family: var(--display); font-size: .82rem; letter-spacing: .12em; padding: .2rem .65rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+.chip.gold { color: var(--gold); border-color: var(--gold-dim); }
+.chip.dlc { color: var(--rot); border-color: var(--rot); }
+.chip.holo { color: #c9b8ff; border-color: #8fd3ff; }
+.sheet h3 { margin: 0 0 .5rem; font-family: var(--display); font-size: .95rem; letter-spacing: .18em; color: var(--muted); font-weight: 500; }
+.level { display: flex; align-items: baseline; gap: .5rem; }
+.level strong { font-family: var(--display); font-size: 2.4rem; color: var(--gold); line-height: 1; font-variant-numeric: tabular-nums; }
+.level span { color: var(--muted); font-size: .9rem; }
+.attrs { display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: .45rem 1.2rem; margin: 0; padding: 0; list-style: none; }
+.attrs li { display: grid; grid-template-columns: 1fr auto; gap: .15rem .5rem; align-items: center; font-size: .92rem; }
+.attrs b { font-variant-numeric: tabular-nums; color: var(--fg); }
+.attrs i { grid-column: 1 / -1; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.attrs i::before { content: ""; display: block; height: 100%; width: var(--v); background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+.facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: .5rem 1.2rem; margin: 0; }
+.facts div { display: grid; gap: .05rem; padding-block: .35rem; border-top: 1px solid var(--line); }
+.facts dt { font-size: .78rem; letter-spacing: .14em; color: var(--muted); font-family: var(--display); }
+.facts dd { margin: 0; font-variant-numeric: tabular-nums; }
+.lore { margin: 0; max-width: 62ch; font-style: italic; color: var(--fg); white-space: pre-line; }
+.actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.flash { animation: flash 450ms ease-out; }
 @keyframes flash { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-.card-wrap { display: grid; gap: .5rem; justify-items: center; }
-#card { width: 100%; max-width: 320px; height: auto; aspect-ratio: 1024 / 1536; border-radius: 14px; box-shadow: 0 12px 40px rgba(0, 0, 0, .6); }
-.card-wrap small { color: var(--muted); font-size: .8rem; text-align: center; }
-
-.codex h2 { font-family: var(--display); color: var(--gold); letter-spacing: .1em; font-size: 1.4rem; margin: 0 0 .3rem; }
-.codex > p { margin: 0 0 1rem; color: var(--muted); }
-details { border-top: 1px solid var(--line); padding-block: .7rem; }
-summary { cursor: pointer; font-family: var(--display); font-size: 1.1rem; letter-spacing: .08em; }
-summary span { color: var(--muted); font-family: var(--body); font-size: .9rem; font-variant-numeric: tabular-nums; }
-details ul { columns: 2 14rem; column-gap: 1.5rem; padding: 0; margin: .8rem 0 0; list-style: none; font-size: .95rem; }
-details li { break-inside: avoid; padding-block: .1rem; color: var(--fg); }
-footer { color: var(--muted); font-size: .85rem; text-align: center; }
-
+.codex { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: .8rem 1.2rem; }
+.codex > summary { cursor: pointer; font-family: var(--display); font-size: 1.1rem; letter-spacing: .08em; color: var(--gold); }
+.codex details { border-top: 1px solid var(--line); padding-block: .6rem; }
+.codex details summary { cursor: pointer; font-family: var(--display); letter-spacing: .06em; }
+.codex summary span { color: var(--muted); font-family: var(--body); font-size: .88rem; font-variant-numeric: tabular-nums; }
+.codex ul { columns: 2 14rem; column-gap: 1.5rem; padding: 0; margin: .6rem 0 0; list-style: none; font-size: .92rem; }
+.codex li { break-inside: avoid; padding-block: .08rem; }
+.codex p { color: var(--muted); margin: .6rem 0; }
+footer { color: var(--muted); font-size: .82rem; text-align: center; }
 @media (prefers-reduced-motion: reduce) { .flash { animation: none !important; } }
 </style>
 
 <main>
-  <header>
+  <header class="top">
     <div class="eyebrow">L'Entre-terre</div>
     <h1>La Forge des Sans-éclat</h1>
-    <p>Entre ton nom, frappe l'enclume. Chaque coup forge un destin différent.</p>
+    <p>Ton prénom, ta carte, ta légende. Chaque forge est unique.</p>
   </header>
 
-  <form id="forge" autocomplete="off">
-    <label class="label" for="prenom">Ton nom, Sans-éclat</label>
-    <div class="row">
-      <input id="prenom" type="text" maxlength="40" placeholder="Entrez votre nom">
-      <button type="submit">Forger</button>
+  <form class="forge" id="forge" autocomplete="off">
+    <div class="field">
+      <input id="prenom" type="text" maxlength="30" placeholder="Entrez votre nom" aria-label="Ton prénom">
+      <button class="btn" type="submit">Forger</button>
+    </div>
+    <div class="options">
+      <div class="seg" role="radiogroup" aria-label="Accord">
+        <label><input type="radio" name="genre" id="genre-m" value="m" checked><span>Il</span></label>
+        <label><input type="radio" name="genre" id="genre-f" value="f"><span>Elle</span></label>
+      </div>
+      <div class="seg" role="radiogroup" aria-label="Némésis tirée parmi">
+        <label><input type="radio" name="cat" id="cat-all" value="all" checked><span>Tout</span></label>
+        <label><input type="radio" name="cat" id="cat-boss" value="boss"><span>Boss</span></label>
+        <label><input type="radio" name="cat" id="cat-pnj" value="pnj"><span>PNJ</span></label>
+        <label><input type="radio" name="cat" id="cat-ennemi" value="ennemi"><span>Ennemis</span></label>
+        <label><input type="radio" name="cat" id="cat-dlc" value="dlc"><span>DLC</span></label>
+      </div>
     </div>
     <p class="status" id="status" role="status"></p>
-    <fieldset class="filters">
-      <legend class="label">Accord du titre</legend>
-      <label class="chip"><input type="radio" name="genre" id="genre-m" value="m" checked><span>Masculin</span></label>
-      <label class="chip"><input type="radio" name="genre" id="genre-f" value="f"><span>Féminin</span></label>
-    </fieldset>
-    <fieldset class="filters">
-      <legend class="label">Tirer parmi</legend>
-      <label class="chip"><input type="radio" name="cat" id="cat-all" value="all" checked><span>Tout</span></label>
-      <label class="chip"><input type="radio" name="cat" id="cat-boss" value="boss"><span>Boss</span></label>
-      <label class="chip"><input type="radio" name="cat" id="cat-pnj" value="pnj"><span>PNJ</span></label>
-      <label class="chip"><input type="radio" name="cat" id="cat-ennemi" value="ennemi"><span>Ennemis</span></label>
-      <label class="chip"><input type="radio" name="cat" id="cat-dlc" value="dlc"><span>Shadow of the Erdtree</span></label>
-    </fieldset>
   </form>
 
   <section class="result" id="result" aria-live="polite" hidden>
-    <div class="identity">
-      <div class="forged">
-        <strong id="title"></strong>
-        <p class="caste" id="caste"></p>
-      </div>
-      <div class="tags" id="tags"></div>
-      <p class="lore" id="lore"></p>
-      <div class="actions">
-        <button type="button" class="ghost" id="copy">Copier</button>
-      </div>
-    </div>
-    <div class="card-wrap">
+    <div class="card-col">
       <canvas id="card" width="1024" height="1536" role="img" aria-label="Carte à collectionner du personnage forgé"></canvas>
-      <button type="button" id="download">Télécharger la carte</button>
-      <small id="card-hint" hidden>Clic droit ou appui long sur la carte pour l'enregistrer.</small>
+      <button class="btn" type="button" id="download">Télécharger la carte</button>
+      <small id="card-hint" hidden>Si le téléchargement est bloqué : clic droit ou appui long sur la carte.</small>
     </div>
+    <article class="sheet">
+      <div>
+        <h2 id="title"></h2>
+        <p class="aff" id="aff"></p>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div>
+        <h3>Attributs</h3>
+        <div class="level"><strong id="level"></strong><span>niveau de runes</span></div>
+        <ul class="attrs" id="attrs"></ul>
+      </div>
+      <div>
+        <h3>Spécificités</h3>
+        <dl class="facts" id="facts"></dl>
+      </div>
+      <div>
+        <h3>Légende</h3>
+        <p class="lore" id="lore"></p>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" type="button" id="reforge">Reforger</button>
+        <button class="btn ghost" type="button" id="copy">Copier le titre</button>
+      </div>
+    </article>
   </section>
 
-  <section class="codex">
-    <h2>Le Codex</h2>
+  <details class="codex">
+    <summary>Le Codex des némésis</summary>
     <p id="codex-count"></p>
     <div id="codex"></div>
-  </section>
+  </details>
 
-  <footer>Noms en français, jeu de base et extension Shadow of the Erdtree. Projet de fan, sans lien avec FromSoftware ni Bandai Namco.</footer>
+  <footer>Noms et lieux en français, jeu de base et Shadow of the Erdtree. Projet de fan, sans lien avec FromSoftware ni Bandai Namco.</footer>
 </main>
 
 <script src="names.js"></script>
@@ -215,6 +197,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 (() => {
   const DATA = window.ER_DATA;
   const T = window.ER_TITLES;
+  const S = window.ER_SHEET;
   const L = window.ER_LORE;
   const LABELS = { boss: "Boss", pnj: "PNJ", ennemi: "Ennemi" };
   const SECTIONS = [
@@ -224,7 +207,6 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ["Shadow of the Erdtree", (e) => e.dlc],
   ];
 
-  // Épithètes tirées des noms du jeu : [masculin, féminin]
   const EPITHETS = [
     ["le Déchu", "la Déchue"],
     ["le Greffé", "la Greffée"],
@@ -293,7 +275,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   const ARTWORKS = Array.from({ length: 9 }, (_, i) => `illustrations/art-${i + 1}.jpg`);
   const HOLO_CHANCE = 1 / 8;
 
-  // Deux cadres, zones mesurées au pixel sur chaque image
+  // Deux cadres ; zones mesurées au pixel sur chaque image
   const FRAMES = {
     gold: {
       src: "illustrations/cadre.webp", w: 1024, h: 1536, artOnTop: false,
@@ -323,8 +305,8 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   const BODY = "Spectral, Georgia, serif";
   const GEM = { boss: "#c0392b", pnj: "#3f7cc0", ennemi: "#5f6b4a", dlc: "#e0662f" };
   const COST = { boss: 3, pnj: 2, ennemi: 1 };
-  const SUBTYPE = { boss: "Créature légendaire — Boss", pnj: "Créature — PNJ", ennemi: "Créature — Ennemi" };
   const RARITY_STYLE = { boss: ["#ffb347", "#a4380f", "L"], pnj: ["#f1dc9c", "#8a6a1e", "R"], ennemi: ["#4a4a4a", "#0a0a0a", "C"] };
+  const LEVELS = { ennemi: [12, 60], pnj: [40, 120], boss: [110, 220] };
 
   const $ = (id) => document.getElementById(id);
   const canvas = $("card");
@@ -345,6 +327,8 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
   const normalize = (s) => s.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
   const capitalize = (s) => s.trim().replace(/\s+/g, " ").replace(/(^|[\s-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase());
+  const upperFirst = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const formatNumber = (n) => n.toLocaleString("fr-FR");
 
   function guessGender(raw) {
     const full = normalize(raw);
@@ -363,12 +347,14 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     return buf[0] % length;
   }
   const chance = (p) => randomIndex(1e6) < p * 1e6;
+  const between = (lo, hi) => lo + randomIndex(hi - lo + 1);
   const recent = [];
   function fresh(list) {
     const pool = list.filter((x) => !recent.includes(x));
-    const item = (pool.length ? pool : list)[randomIndex((pool.length ? pool : list).length)];
+    const from = pool.length ? pool : list;
+    const item = from[randomIndex(from.length)];
     recent.push(item);
-    if (recent.length > 120) recent.shift();
+    if (recent.length > 150) recent.shift();
     return item;
   }
   function freshMany(list, n) {
@@ -386,11 +372,18 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     if (cat === "dlc") return DATA.filter((e) => e.dlc);
     return DATA.filter((e) => e.cat === cat);
   }
-
   const gender = () => document.querySelector('input[name="genre"]:checked').value;
 
-  // ---- Titres forgés : uniquement des titres, épithètes et lieux du lore, 6 structures ----
-  const TITLE_PATTERNS = ["epithet", "honPlace", "honEpithet", "placeEpithet", "hon", "tarnished"];
+  // ---- Français : articles et contractions ----
+  function de(withArticle) {
+    if (withArticle.startsWith("les ")) return "des " + withArticle.slice(4);
+    if (withArticle.startsWith("le ")) return "du " + withArticle.slice(3);
+    return "de " + withArticle;
+  }
+  const deClasse = (c) => (/^[AEIOUÉ]/.test(c) ? `de l'${c}` : `du ${c}`);
+
+  // ---- Titre forgé : toujours le prénom d'abord, puis un rang, un lieu ou une épithète du lore ----
+  const TITLE_PATTERNS = ["epithet", "honPlace", "hon", "placeEpithet", "tarnished"];
 
   function makeTitleSpec(pick) {
     const hons = pick.dlc && chance(0.5) ? T.dlcHonorifics : T.honorifics;
@@ -400,64 +393,78 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
       const spec = { pattern };
       if (pattern.startsWith("hon")) spec.hon = fresh(hons);
       if (pattern === "honPlace" || pattern === "placeEpithet" || pattern === "tarnished") spec.place = fresh(places);
-      if (pattern === "epithet" || pattern === "honEpithet" || pattern === "placeEpithet") spec.ep = fresh(EPITHETS);
+      if (pattern === "epithet" || pattern === "placeEpithet") spec.ep = fresh(EPITHETS);
       const longest = Math.max(titleFor("Maximilienne", spec, "m").length, titleFor("Maximilienne", spec, "f").length);
-      const echo = spec.hon && spec.ep && [0, 1].some((f) => spec.ep[f].includes(spec.hon[f].split(" ")[0]));
-      if (longest <= 48 && !echo) { last.pattern = pattern; return spec; }
+      if (longest <= 48) { last.pattern = pattern; return spec; }
     }
     return { pattern: "epithet", ep: fresh(EPITHETS) };
   }
 
-  function withEpithet(base, ep, bare) {
-    return bare && /^(le |la |l')/.test(ep) ? `${base} ${ep}` : `${base}, ${ep}`;
+  function surnomFor(spec, g) {
+    const f = g === "f" ? 1 : 0;
+    switch (spec.pattern) {
+      case "honPlace": return `${spec.hon[f]} ${spec.place}`;
+      case "hon": return spec.hon[f];
+      case "placeEpithet": return spec.ep[f];
+      case "tarnished": return `Sans-éclat ${spec.place}`;
+      default: return spec.ep[f];
+    }
   }
 
   function titleFor(name, spec, g) {
     const f = g === "f" ? 1 : 0;
-    switch (spec.pattern) {
-      case "honPlace": return `${spec.hon[f]} ${name} ${spec.place}`;
-      case "honEpithet": return withEpithet(`${spec.hon[f]} ${name}`, spec.ep[f]);
-      case "placeEpithet": return withEpithet(`${name} ${spec.place}`, spec.ep[f]);
-      case "hon": return `${spec.hon[f]} ${name}`;
-      case "tarnished": return `${name}, Sans-éclat ${spec.place}`;
-      default: return withEpithet(name, spec.ep[f], true);
+    if (spec.pattern === "epithet") {
+      const ep = spec.ep[f];
+      return /^(le |la |l')/.test(ep) ? `${name} ${ep}` : `${name}, ${ep}`;
     }
+    if (spec.pattern === "placeEpithet") return `${name} ${spec.place}, ${spec.ep[f]}`;
+    return `${name}, ${surnomFor(spec, g)}`;
   }
 
-  function surnomFor(spec, g) {
-    const f = g === "f" ? 1 : 0;
-    if (spec.ep) return spec.ep[f];
-    if (spec.hon) return spec.place ? `${spec.hon[f]} ${spec.place}` : spec.hon[f];
-    return `Sans-éclat ${spec.place}`;
+  // ---- Fiche : classe de départ, attributs (niveau = somme − 79, comme dans le jeu), spécificités ----
+  function makeSheet(pick) {
+    const cls = fresh(S.classes);
+    const attrs = cls[1].slice();
+    const baseLevel = attrs.reduce((a, b) => a + b, 0) - 79;
+    let [lo, hi] = LEVELS[pick.cat];
+    if (pick.dlc) { lo += 40; hi += 60; }
+    let points = Math.max(0, between(lo, hi) - baseLevel);
+    const weights = cls[1].map((v, i) => (i === 0 ? 5 : v >= 13 ? 4 : 1));
+    while (points > 0) {
+      const total = weights.reduce((a, w, i) => a + (attrs[i] < 99 ? w : 0), 0);
+      let r = randomIndex(total);
+      const i = weights.findIndex((w, k) => attrs[k] < 99 && (r -= w) < 0);
+      attrs[i] += 1;
+      points -= 1;
+    }
+    const level = attrs.reduce((a, b) => a + b, 0) - 79;
+    return {
+      classe: cls[0], attrs, level,
+      aff: fresh(pick.dlc && chance(0.6) ? S.dlcAffiliations : S.affiliations),
+      weapon: fresh(S.weapons), spirit: fresh(S.spirits), rune: fresh(S.runes),
+      weakness: fresh(S.weaknesses), region: fresh(S.regions),
+      deaths: between(3, 2400), lost: between(2, 40) * level * 97,
+    };
   }
 
-  // ---- Descriptions : 6 formes, matière jamais reprise d'une carte récente ----
-  const LORE_FORMS = ["chronicle", "testimony", "register", "groundMessage", "inventory", "letter"];
-  const ordinal = (n) => `${n}${n === 1 ? "re" : "e"}`;
+  // ---- Légende : 4 formes, sans citation ni dialogue, matière jamais reprise d'une carte récente ----
+  const LORE_FORMS = ["chronicle", "chronicle", "register", "inventory", "invasion"];
 
   function makeLoreSpec(pick) {
-    const form = fresh(LORE_FORMS.filter((x) => x !== last.form));
+    let form = fresh(LORE_FORMS);
+    if (form === last.form && form !== "chronicle") form = "chronicle";
     last.form = form;
-    const c = L.chronicle;
-    const spec = { form, n: 100 + randomIndex(9000) };
+    const spec = { form, n: between(100, 9999) };
     if (form === "chronicle") {
-      spec.parts = [fresh(pick.dlc && chance(0.7) ? c.dlcOpenings : c.openings), fresh(c.links), fresh(c.closings)];
-    } else if (form === "testimony") {
-      spec.quote = fresh(pick.dlc && chance(0.6) ? L.testimony.dlcQuotes : L.testimony.quotes);
-      spec.parts = [fresh(c.links)];
+      spec.parts = [fresh(pick.dlc && chance(0.7) ? L.dlcOpenings : L.openings), fresh(L.middles), fresh(L.closings)];
     } else if (form === "register") {
-      spec.parts = [fresh(L.register.motives), fresh(L.register.notes)];
-    } else if (form === "groundMessage") {
-      spec.parts = [fresh(L.groundMessage.places), fresh(L.groundMessage.messages), fresh(c.closings)];
-      spec.up = randomIndex(400);
-      spec.down = randomIndex(400);
+      spec.parts = [fresh(L.register.motives), fresh(L.register.notes), fresh(L.closings)];
     } else if (form === "inventory") {
       spec.items = freshMany(L.inventory.items, 3);
-      spec.parts = [fresh(L.inventory.comments)];
-      spec.n = 2 + randomIndex(600);
+      spec.parts = [fresh(L.inventory.comments), fresh(L.middles)];
+      spec.n = between(2, 600);
     } else {
-      spec.recipient = fresh(L.letter.recipients);
-      spec.parts = [fresh(L.letter.bodies), fresh(c.links)];
+      spec.parts = [fresh(L.invasion.results), fresh(L.closings)];
     }
     return spec;
   }
@@ -468,30 +475,28 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     let text;
     switch (s.form) {
       case "chronicle": text = p.join(" "); break;
-      case "testimony": text = `${s.quote[1]} — ${s.quote[0]}.\n${p[0]}`; break;
-      case "register": text = `Registre de la Table ronde, entrée n° ${s.n}. Arrivée : {title}. Motif : ${p[0]}. Note du greffier : {name} ${p[1]}`; break;
-      case "groundMessage": text = `Gravé par {name} devant ${p[0]} : « ${p[1]} »\nAppréciations : ${s.up} favorables, ${s.down} défavorables. ${p[2]}`; break;
-      case "inventory": text = `Inventaire de {name} à sa ${ordinal(s.n)} mort : ${s.items.join(", ")}. ${p[0]}`; break;
-      default: text = `Lettre de {name} à ${s.recipient}, jamais envoyée : « ${p[0]} »\n${p[1]}`;
+      case "register": text = `Registre de la Table ronde, entrée n° ${s.n}. Arrivée de {title}, ${card.sheet.classe.toLowerCase()} de niveau {level}, pour ${p[0]}. Le greffier note que {name} ${p[1]}\n${p[2]}`; break;
+      case "inventory": text = `Inventaire de {name} à sa ${s.n}e mort : ${s.items.join(", ")}. ${p[0]}\n${p[1]}`; break;
+      default: text = `Rapport d'invasion n° ${s.n}. {name} a envahi le monde de sa némésis, {caste}. Issue de la rencontre : ${p[0]}.\n${p[1]}`;
     }
     const f = g === "f";
+    const aff = card.sheet.aff[1];
     return text
       .replaceAll("{title}", card.title)
       .replaceAll("{surnom}", surnomFor(card.titleSpec, g))
       .replaceAll("{name}", card.display)
       .replaceAll("{caste}", card.pick.name)
+      .replaceAll("{deAff}", de(aff))
+      .replaceAll("{Aff}", upperFirst(aff))
+      .replaceAll("{aff}", aff)
+      .replaceAll("{deClasse}", deClasse(card.sheet.classe))
+      .replaceAll("{classe}", card.sheet.classe.toLowerCase())
+      .replaceAll("{level}", String(card.sheet.level))
       .replaceAll("{e}", f ? "e" : "")
       .replaceAll("{Il}", f ? "Elle" : "Il")
       .replaceAll("{il}", f ? "elle" : "il")
       .replaceAll("{lui}", f ? "elle" : "lui")
-      .replaceAll("{le}", f ? "la" : "le")
-      .replaceAll("« ", "« ")
-      .replaceAll(" »", " »");
-  }
-
-  function stats(cat) {
-    const base = { boss: 6, pnj: 3, ennemi: 1 }[cat];
-    return [base + randomIndex(5), base + randomIndex(5)];
+      .replaceAll("{le}", f ? "la" : "le");
   }
 
   // ---- Dessin de la carte ----
@@ -616,6 +621,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     const fr = FRAMES[c.frame];
     const z = fr.zone;
     const cat = c.pick.cat;
+    const sh = c.sheet;
     INK = fr.ink;
     if (canvas.width !== fr.w || canvas.height !== fr.h) {
       canvas.width = fr.w;
@@ -635,44 +641,58 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     write(c.title, z.title.x, z.title.cy, fr.glow);
     costGem(z.cost.cx, z.cost.cy, z.cost.r, GEM[c.pick.dlc ? "dlc" : cat], COST[cat]);
 
+    const typeLine = `${sh.classe} — ${sh.aff[0]}`;
     ctx.fillStyle = INK;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    fitText(SUBTYPE[cat], z.type.w, 40, 700, SERIF);
-    write(SUBTYPE[cat], z.type.x, z.type.cy, fr.glow);
+    fitText(typeLine, z.type.w, 40, 700, SERIF);
+    write(typeLine, z.type.x, z.type.cy, fr.glow);
     setSymbol(z.rarity.cx, z.rarity.cy, cat);
 
     const t = z.text;
     ctx.textBaseline = "top";
     ctx.fillStyle = INK;
-    fitText(c.pick.name, t.w, 38, 700, BODY);
-    write(c.pick.name, t.x, t.y, fr.glow);
+    const head = `Némésis : ${c.pick.name}`;
+    fitText(head, t.w, 34, 700, BODY);
+    write(head, t.x, t.y, fr.glow);
     ctx.strokeStyle = fr.glow ? "rgba(14,22,48,.45)" : "rgba(26,17,8,.4)";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(t.x, t.y + 56);
-    ctx.lineTo(t.x + t.w, t.y + 56);
+    ctx.moveTo(t.x, t.y + 52);
+    ctx.lineTo(t.x + t.w, t.y + 52);
     ctx.stroke();
-    const top = t.y + 74;
-    let size = 32, lines, lh;
+
+    const statsY = t.bottom - 34;
+    const top = t.y + 68;
+    let size = 30, lines, lh;
     do {
       ctx.font = `italic ${size}px ${BODY}`;
       lh = Math.round(size * 1.3);
       lines = wrapLines(c.loreText, t.w);
       size -= 1;
-    } while (lines.length * lh > t.bottom - top && size > 16);
+    } while (lines.length * lh > statsY - 14 - top && size > 15);
     lines.forEach((l, i) => write(l, t.x, top + i * lh, fr.glow));
+
+    ctx.beginPath();
+    ctx.moveTo(t.x, statsY - 8);
+    ctx.lineTo(t.x + t.w, statsY - 8);
+    ctx.stroke();
+    const attrLine = S.short.map((k, i) => `${k} ${sh.attrs[i]}`).join("  ·  ");
+    fitText(attrLine, t.w, 26, 700, SERIF);
+    write(attrLine, t.x, statsY, fr.glow);
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = `700 48px ${SERIF}`;
+    const levelText = `Niv. ${sh.level}`;
     if (z.plaque) {
       plaque(z.plaque);
       ctx.fillStyle = "#f4f1ff";
-      ctx.fillText(`${c.atk}/${c.def}`, z.plaque.x + z.plaque.w / 2, z.plaque.y + z.plaque.h / 2 + 2);
+      fitText(levelText, z.plaque.w - 20, 40, 700, SERIF);
+      ctx.fillText(levelText, z.plaque.x + z.plaque.w / 2, z.plaque.y + z.plaque.h / 2 + 2);
     } else {
       ctx.fillStyle = INK;
-      ctx.fillText(`${c.atk}/${c.def}`, z.stats.cx, z.stats.cy);
+      fitText(levelText, 130, 40, 700, SERIF);
+      ctx.fillText(levelText, z.stats.cx, z.stats.cy);
     }
 
     const num = `${String(c.number).padStart(3, "0")}/${DATA.length} ${RARITY_STYLE[cat][2]} · FSE · FR${c.frame === "holo" ? " · BRILLANTE" : ""}`;
@@ -699,24 +719,44 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     el.classList.add("flash");
   }
 
+  function el(tag, props = {}, children = []) {
+    const node = document.createElement(tag);
+    Object.assign(node, props);
+    node.append(...children);
+    return node;
+  }
+
+  function renderSheet(c) {
+    const sh = c.sheet;
+    $("title").textContent = c.title;
+    $("aff").textContent = sh.aff[0];
+    $("chips").replaceChildren(
+      el("span", { className: "chip gold", textContent: sh.classe }),
+      el("span", { className: "chip", textContent: `Némésis : ${LABELS[c.pick.cat]}` }),
+      el("span", { className: c.pick.dlc ? "chip dlc" : "chip", textContent: c.pick.dlc ? "Shadow of the Erdtree" : "Jeu de base" }),
+      ...(c.frame === "holo" ? [el("span", { className: "chip holo", textContent: "Carte brillante" })] : []),
+    );
+    $("level").textContent = sh.level;
+    $("attrs").replaceChildren(...S.attributes.map((name, i) => {
+      const bar = el("i");
+      bar.style.setProperty("--v", `${Math.round((sh.attrs[i] / 99) * 100)}%`);
+      return el("li", {}, [el("span", { textContent: name }), el("b", { textContent: sh.attrs[i] }), bar]);
+    }));
+    const facts = [
+      ["Némésis", c.pick.name], ["Arme de prédilection", sh.weapon], ["Cendre d'esprit", sh.spirit],
+      ["Grande Rune convoitée", sh.rune], ["Faiblesse", sh.weakness], ["Région d'origine", upperFirst(sh.region)],
+      ["Morts recensées", formatNumber(sh.deaths)], ["Runes perdues", formatNumber(sh.lost)],
+    ];
+    $("facts").replaceChildren(...facts.map(([k, v]) => el("div", {}, [el("dt", { textContent: k }), el("dd", { textContent: v })])));
+    $("lore").textContent = c.loreText;
+  }
+
   function render() {
     if (!current) return;
     const g = gender();
     current.title = titleFor(current.display, current.titleSpec, g);
     current.loreText = loreText(current, g);
-    $("title").textContent = current.title;
-    $("caste").textContent = current.pick.name;
-    $("lore").textContent = current.loreText;
-    $("tags").replaceChildren(...[
-      [LABELS[current.pick.cat], "tag"],
-      [current.pick.dlc ? "Shadow of the Erdtree" : "Jeu de base", current.pick.dlc ? "tag dlc" : "tag"],
-      ...(current.frame === "holo" ? [["Carte brillante", "tag holo"]] : []),
-    ].map(([text, cls]) => {
-      const el = document.createElement("span");
-      el.className = cls;
-      el.textContent = text;
-      return el;
-    }));
+    renderSheet(current);
     drawCard(current);
   }
 
@@ -728,7 +768,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   function forge() {
     const display = capitalize($("prenom").value);
     if (!display) {
-      $("status").textContent = "Entre ton nom pour forger ta carte.";
+      $("status").textContent = "Entre ton prénom pour forger ta carte.";
       $("prenom").focus();
       return;
     }
@@ -736,26 +776,53 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     last.pick = pick;
     const scene = fresh(ARTWORKS.filter((a) => a !== last.scene));
     last.scene = scene;
-    const [atk, def] = stats(pick.cat);
     const card = {
-      display, pick, scene, atk, def,
+      display, pick, scene,
       frame: chance(HOLO_CHANCE) ? "holo" : "gold",
       titleSpec: makeTitleSpec(pick),
+      sheet: makeSheet(pick),
       loreSpec: makeLoreSpec(pick),
       number: DATA.indexOf(pick) + 1,
       art: null,
     };
     current = card;
     $("status").textContent = "";
+    const firstTime = $("result").hidden;
     $("result").hidden = false;
     const art = illustration(scene);
-    const frame = illustration(FRAMES[card.frame].src);
     whenLoaded(art, () => { if (current === card) { card.art = art; render(); } });
-    whenLoaded(frame, () => { if (current === card) render(); });
+    whenLoaded(illustration(FRAMES[card.frame].src), () => { if (current === card) render(); });
     render();
-    replay($("title"));
-    replay($("caste"));
-    replay($("lore"));
+    ["title", "aff", "lore"].forEach((id) => replay($(id)));
+    if (firstTime) $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function downloadCard() {
+    if (!current) return;
+    const filename = `${normalize(current.display).replace(/[^a-z0-9]+/g, "-") || "sans-eclat"}-carte.png`;
+    let blob;
+    try {
+      blob = await new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("vide"))), "image/png"));
+    } catch {
+      $("card-hint").hidden = false;
+      return;
+    }
+    const downloads = window.claude?.use ? await window.claude.use("downloads").catch(() => null) : null;
+    if (downloads) {
+      try {
+        await downloads.save({ filename, data: blob });
+        $("status").textContent = "Carte enregistrée.";
+      } catch (err) {
+        if (err?.code !== "declined") $("card-hint").hidden = false;
+      }
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = el("a", { href: url, download: filename });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
   $("prenom").addEventListener("input", () => {
@@ -763,53 +830,26 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     if (g) $(`genre-${g}`).checked = true;
   });
   $("forge").addEventListener("submit", (e) => { e.preventDefault(); forge(); });
+  $("reforge").addEventListener("click", forge);
+  $("download").addEventListener("click", downloadCard);
   document.querySelectorAll('input[name="cat"]').forEach((r) => r.addEventListener("change", () => { if (current) forge(); }));
   document.querySelectorAll('input[name="genre"]').forEach((r) => r.addEventListener("change", render));
-
   $("copy").addEventListener("click", () => {
-    const text = `${$("title").textContent} — ${$("caste").textContent}`;
-    navigator.clipboard.writeText(text)
-      .then(() => { $("status").textContent = "Copié."; })
+    navigator.clipboard.writeText(current.title)
+      .then(() => { $("status").textContent = "Titre copié."; })
       .catch(() => {
         const range = document.createRange();
         range.selectNodeContents($("title"));
         const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
-        $("status").textContent = "Copie bloquée : texte sélectionné, fais Ctrl+C.";
+        $("status").textContent = "Copie bloquée : titre sélectionné, fais Ctrl+C.";
       });
   });
 
-  const framed = (() => { try { return window.self !== window.top; } catch { return true; } })();
-  if (framed) {
-    $("download").hidden = true;
-    $("card-hint").hidden = false;
-  } else {
-    $("download").addEventListener("click", () => {
-      let url;
-      try {
-        url = canvas.toDataURL("image/png");
-      } catch {
-        $("status").textContent = "Téléchargement bloqué : fais un clic droit sur la carte, puis « Enregistrer l'image ».";
-        return;
-      }
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${normalize(current.display).replace(/[^a-z0-9]+/g, "-") || "sans-eclat"}-carte.png`;
-      a.click();
-    });
-  }
-
-  $("codex-count").textContent = `${DATA.length} noms répertoriés, dont ${DATA.filter((e) => e.dlc).length} issus de Shadow of the Erdtree.`;
+  $("codex-count").textContent = `${DATA.length} personnages du jeu peuvent devenir ta némésis, dont ${DATA.filter((e) => e.dlc).length} issus de Shadow of the Erdtree.`;
   SECTIONS.forEach(([label, test]) => {
     const list = DATA.filter(test).sort((a, b) => a.name.localeCompare(b.name, "fr"));
-    const d = document.createElement("details");
-    d.innerHTML = `<summary>${label} <span>(${list.length})</span></summary>`;
-    const ul = document.createElement("ul");
-    list.forEach((e) => {
-      const li = document.createElement("li");
-      li.textContent = e.dlc ? `${e.name} · ${LABELS[e.cat]}` : e.name;
-      ul.append(li);
-    });
-    d.append(ul);
+    const ul = el("ul", {}, list.map((e) => el("li", { textContent: e.dlc ? `${e.name} · ${LABELS[e.cat]}` : e.name })));
+    const d = el("details", {}, [el("summary", {}, [`${label} `, el("span", { textContent: `(${list.length})` })]), ul]);
     $("codex").append(d);
   });
 
