@@ -1,9 +1,9 @@
 <title>La Forge des Sans-éclat</title>
-<meta name="description" content="Entre ton prénom et découvre quel boss, PNJ ou ennemi d'Elden Ring tu es.">
+<meta name="description" content="Entre ton prénom et découvre quel boss, PNJ ou ennemi d'Elden Ring tu es, avec ta carte à collectionner.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
 <style>
-/* Layout: une colonne étroite façon écran de jeu — saisie, puis le nom posé au-dessus d'une barre de vie de boss. */
+/* Layout: saisie en haut, puis le titre forgé collé à sa caste, et la carte à collectionner à côté (dessous sur mobile). */
 :root {
   --bg: #100f0b;
   --surface: #1a1913;
@@ -11,7 +11,6 @@
   --fg: #e6dcc0;
   --muted: #9b917a;
   --gold: #d4b46a;
-  --blood: #9e2a22;
   --rot: #c0603a;
   --display: "Cormorant SC", "Cormorant Garamond", Georgia, serif;
   --body: "Spectral", Georgia, "Times New Roman", serif;
@@ -30,15 +29,10 @@ body {
     var(--bg);
   min-height: 100%;
 }
-main { max-width: 38rem; margin-inline: auto; display: grid; gap: 2.5rem; }
+main { max-width: 48rem; margin-inline: auto; display: grid; gap: 2.5rem; }
 
 header { text-align: center; display: grid; gap: .5rem; }
-.eyebrow {
-  font-family: var(--display);
-  letter-spacing: .3em;
-  font-size: .8rem;
-  color: var(--muted);
-}
+.eyebrow { font-family: var(--display); letter-spacing: .3em; font-size: .8rem; color: var(--muted); }
 h1 {
   font-family: var(--display);
   font-weight: 700;
@@ -51,8 +45,8 @@ h1 {
 }
 header p { margin: 0; color: var(--muted); font-style: italic; }
 
-form { display: grid; gap: 1rem; }
-label[for="prenom"] { font-family: var(--display); letter-spacing: .15em; font-size: .9rem; color: var(--muted); }
+form { display: grid; gap: 1.1rem; max-width: 38rem; width: 100%; margin-inline: auto; }
+.label { font-family: var(--display); letter-spacing: .15em; font-size: .9rem; color: var(--muted); }
 .row { display: flex; gap: .6rem; flex-wrap: wrap; }
 input[type="text"] {
   flex: 1 1 14rem;
@@ -84,7 +78,7 @@ button:hover { filter: brightness(1.1); }
 button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 
 .filters { display: flex; flex-wrap: wrap; gap: .5rem; border: 0; padding: 0; margin: 0; }
-.filters legend { font-family: var(--display); letter-spacing: .15em; font-size: .9rem; color: var(--muted); margin-bottom: .4rem; }
+.filters legend { margin-bottom: .4rem; }
 .chip input { position: absolute; opacity: 0; pointer-events: none; }
 .chip span {
   display: inline-block;
@@ -100,34 +94,30 @@ button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 
 .result {
   display: grid;
-  gap: 1.4rem;
+  gap: 2rem;
   padding-block: 2rem;
   border-block: 1px solid var(--line);
+  align-items: start;
 }
-.result .who { font-style: italic; color: var(--muted); margin: 0; }
-.bossbar { display: grid; gap: .35rem; }
-.bossbar .name {
-  font-family: var(--body);
-  font-size: clamp(1.35rem, 4.5vw, 1.8rem);
-  line-height: 1.2;
+@media (min-width: 760px) { .result { grid-template-columns: minmax(0, 1fr) 320px; } }
+.identity { display: grid; gap: 1.2rem; min-width: 0; }
+.forged { display: grid; gap: .1rem; }
+.forged strong {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 6vw, 2.7rem);
+  color: var(--gold);
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.forged .caste {
   margin: 0;
-  text-shadow: 0 1px 0 #000;
+  font-size: clamp(1.15rem, 3.8vw, 1.45rem);
+  font-style: italic;
+  color: var(--fg);
   overflow-wrap: anywhere;
 }
-.bar {
-  height: 10px;
-  border: 1px solid #5a5240;
-  background: #0a0907;
-  position: relative;
-  overflow: hidden;
-}
-.bar i {
-  position: absolute; inset: 0;
-  background: linear-gradient(to bottom, #c23a2e, var(--blood));
-  transform-origin: left;
-  animation: fill 900ms cubic-bezier(.2,.7,.2,1);
-}
-@keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .tags { display: flex; gap: .5rem; flex-wrap: wrap; }
 .tag {
   font-family: var(--display);
@@ -138,15 +128,14 @@ button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
   color: var(--muted);
 }
 .tag.dlc { border-color: var(--rot); color: var(--rot); }
-.forged { display: grid; gap: .2rem; }
-.forged small { font-family: var(--display); letter-spacing: .15em; color: var(--muted); }
-.forged strong { font-family: var(--display); font-weight: 700; font-size: clamp(1.9rem, 6.5vw, 2.8rem); color: var(--gold); line-height: 1.1; overflow-wrap: anywhere; text-wrap: balance; }
-.caste { display: grid; gap: .8rem; }
-.caste > small { font-family: var(--display); letter-spacing: .15em; color: var(--muted); }
-.forged strong.flash, .bossbar .name.flash { animation: flash 500ms ease-out; }
-@keyframes flash { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .actions { display: flex; gap: .6rem; flex-wrap: wrap; }
 .status { min-height: 1.4em; margin: 0; color: var(--muted); font-size: .9rem; }
+.flash { animation: flash 500ms ease-out; }
+@keyframes flash { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.card-wrap { display: grid; gap: .5rem; justify-items: center; }
+#card { width: 100%; max-width: 320px; height: auto; aspect-ratio: 63 / 88; border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, .6); }
+.card-wrap small { color: var(--muted); font-size: .8rem; text-align: center; }
 
 .codex h2 { font-family: var(--display); color: var(--gold); letter-spacing: .1em; font-size: 1.4rem; margin: 0 0 .3rem; }
 .codex > p { margin: 0 0 1rem; color: var(--muted); }
@@ -157,7 +146,7 @@ details ul { columns: 2 14rem; column-gap: 1.5rem; padding: 0; margin: .8rem 0 0
 details li { break-inside: avoid; padding-block: .1rem; color: var(--fg); }
 footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
-@media (prefers-reduced-motion: reduce) { .bar i, .flash { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .flash { animation: none !important; } }
 </style>
 
 <main>
@@ -168,13 +157,18 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   </header>
 
   <form id="forge" autocomplete="off">
-    <label for="prenom">Ton nom, Sans-éclat</label>
+    <label class="label" for="prenom">Ton nom, Sans-éclat</label>
     <div class="row">
       <input id="prenom" type="text" maxlength="40" placeholder="Entrez votre nom">
       <button type="submit">Forger</button>
     </div>
     <fieldset class="filters">
-      <legend>Tirer parmi</legend>
+      <legend class="label">Accord du titre</legend>
+      <label class="chip"><input type="radio" name="genre" id="genre-m" value="m" checked><span>Masculin</span></label>
+      <label class="chip"><input type="radio" name="genre" id="genre-f" value="f"><span>Féminin</span></label>
+    </fieldset>
+    <fieldset class="filters">
+      <legend class="label">Tirer parmi</legend>
       <label class="chip"><input type="radio" name="cat" id="cat-all" value="all" checked><span>Tout</span></label>
       <label class="chip"><input type="radio" name="cat" id="cat-boss" value="boss"><span>Boss</span></label>
       <label class="chip"><input type="radio" name="cat" id="cat-pnj" value="pnj"><span>PNJ</span></label>
@@ -184,22 +178,22 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   </form>
 
   <section class="result" aria-live="polite">
-    <div class="forged">
-      <small>Ton titre forgé</small>
-      <strong id="title"></strong>
-    </div>
-    <div class="caste">
-      <small>Ta caste dans l'Entre-terre</small>
-      <div class="bossbar">
-        <p class="name" id="name"></p>
-        <div class="bar"><i id="bar"></i></div>
+    <div class="identity">
+      <div class="forged">
+        <strong id="title"></strong>
+        <p class="caste" id="caste"></p>
       </div>
       <div class="tags" id="tags"></div>
+      <div class="actions">
+        <button type="button" class="ghost" id="copy">Copier</button>
+        <button type="button" class="ghost" id="download" hidden>Télécharger la carte</button>
+      </div>
+      <p class="status" id="status"></p>
     </div>
-    <div class="actions">
-      <button type="button" class="ghost" id="copy">Copier</button>
+    <div class="card-wrap">
+      <canvas id="card" width="630" height="880" role="img" aria-label="Carte à collectionner du personnage forgé"></canvas>
+      <small id="card-hint">Clic droit ou appui long sur la carte pour l'enregistrer.</small>
     </div>
-    <p class="status" id="status"></p>
   </section>
 
   <section class="codex">
@@ -216,6 +210,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 (() => {
   const DATA = window.ER_DATA;
   const LABELS = { boss: "Boss", pnj: "PNJ", ennemi: "Ennemi" };
+  const RARITY = { boss: "Légendaire", pnj: "Rare", ennemi: "Commune" };
   const SECTIONS = [
     ["Boss", (e) => e.cat === "boss" && !e.dlc],
     ["PNJ", (e) => e.cat === "pnj" && !e.dlc],
@@ -223,25 +218,87 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ["Shadow of the Erdtree", (e) => e.dlc],
   ];
 
-  const EPITHETS = [...new Set(
-    DATA.filter((e) => e.cat !== "ennemi").flatMap((e) => {
-      const comma = e.name.match(/^[^,]+, (.+)$/);
-      if (comma) return [{ sep: ", ", text: comma[1] }];
-      const art = e.name.match(/(?<!de) ((?:le |la |l')\p{Lu}.*)$/u);
-      return art ? [{ sep: " ", text: art[1] }] : [];
-    }).map((x) => JSON.stringify(x))
-  )].map((s) => JSON.parse(s));
+  // Épithètes tirées des noms du jeu : [masculin, féminin]
+  const EPITHETS = [
+    ["le Déchu", "la Déchue"], ["le Greffé", "la Greffée"], ["Roi de la Pleine Lune", "Reine de la Pleine Lune"],
+    ["Fléau des astres", "Fléau des astres"], ["Seigneur du Blasphème", "Dame du Blasphème"],
+    ["Roi des Réprouvés", "Reine des Réprouvés"], ["la Lame d'ébène", "la Lame d'ébène"],
+    ["l'Omniscient", "l'Omnisciente"], ["Premier Seigneur d'Elden", "Première Dame d'Elden"],
+    ["le Guerrier", "la Guerrière"], ["Lame de Miquella", "Lame de Miquella"],
+    ["Dieu de la Putréfaction", "Déesse de la Putréfaction"], ["Seigneur du Sang", "Dame du Sang"],
+    ["le Réprouvé", "la Réprouvée"], ["Né du Vide", "Née du Vide"], ["Étoile des Ténèbres", "Étoile des Ténèbres"],
+    ["Chevalier de l'Arbre-Saint", "Chevalière de l'Arbre-Saint"], ["le Décomposé", "la Décomposée"],
+    ["le Brouillard glacial", "le Brouillard glacial"], ["la Fleur flétrie", "la Fleur flétrie"],
+    ["Voleur de feu", "Voleuse de feu"], ["Meneur des Couteaux noirs", "Meneuse des Couteaux noirs"],
+    ["Prêtre du Sang", "Prêtresse du Sang"], ["Chevalier carien", "Chevalière carienne"],
+    ["le Grand Ours rouge", "la Grande Ourse rouge"], ["Chevalier des Lunes jumelles", "Chevalière des Lunes jumelles"],
+    ["l'Empaleur", "l'Empaleuse"], ["Saint du Bourgeon", "Sainte du Bourgeon"],
+    ["Seigneur de la Flamme de la Frénésie", "Dame de la Flamme de la Frénésie"], ["Père des Doigts", "Mère des Doigts"],
+    ["l'Effroyable", "l'Effroyable"], ["Consort promis", "Consorte promise"], ["Consort de Miquella", "Consorte de Miquella"],
+    ["Inquisiteur aîné", "Inquisitrice aînée"], ["Feuille-Sèche", "Feuille-Sèche"], ["le Sorcier", "la Sorcière"],
+    ["le Demi-Loup", "la Demi-Louve"], ["le Couturier", "la Couturière"],
+    ["Chasseur de Doigts sanglants", "Chasseuse de Doigts sanglants"], ["l'Albinauréen", "l'Albinauréenne"],
+    ["Chasseur des morts", "Chasseuse des morts"], ["Compagnon du lit de mort", "Compagne du lit de mort"],
+    ["le Récusant", "la Récusante"], ["Guerrier-jarre", "Guerrière-jarre"], ["Liseur de Doigts", "Liseuse de Doigts"],
+    ["le Truand", "la Truande"], ["Pasteur des vœux", "Pasteure des vœux"], ["Serviteur carien", "Servante carienne"],
+    ["l'Éternel", "l'Éternelle"], ["le Doré", "la Dorée"], ["le Bienveillant", "la Bienveillante"], ["l'Oisif", "l'Oisive"],
+    ["Dévoreur de Sans-éclat", "Dévoreuse de Sans-éclat"], ["Griffe de bête", "Griffe de bête"],
+    ["Châtelain du château ombragé", "Châtelaine du château ombragé"], ["Doigt sanglant violet", "Doigt sanglant violet"],
+    ["le Sans-tête", "la Sans-tête"], ["Poing-de-fer", "Poing-de-fer"], ["Tueur de Réprouvés", "Tueuse de Réprouvés"],
+  ];
+
+  // {e} devient "e" au féminin
+  const FLAVORS = [
+    "Les Sans-éclat ne meurent jamais vraiment. Ils reviennent, toujours plus têtus.",
+    "Nul ne se souvient de ce nom, mais tous en craignent l'ombre.",
+    "Que la grâce guide ses pas, ou qu'elle les égare.",
+    "Une rune de plus, une mort de moins.",
+    "Dans l'Entre-terre, la patience est une arme comme une autre.",
+    "Même les dragons ralentissent en entendant ce nom.",
+    "Le brouillard s'écarte sur son passage.",
+    "Forgé{e} dans la défaite, trempé{e} dans la persévérance.",
+    "Revenu{e} cent fois devant la même brume, jamais la même issue.",
+    "L'Arbre-Monde l'a vu{e} naître. Il le regrette peut-être.",
+    "Ses ennemis en parlent au passé, par précaution.",
+    "La Volonté supérieure n'avait rien prévu de tel.",
+    "Chaque cicatrice porte le nom d'un boss.",
+    "Sous la lumière dorée, une silhouette refuse de plier.",
+  ];
+
+  const PALETTES = {
+    boss: { sky: ["#2a1208", "#0d0604"], glow: "#f0c56a", accent: "#b8402e" },
+    pnj: { sky: ["#141a24", "#07090d"], glow: "#e8d39a", accent: "#6f8db0" },
+    ennemi: { sky: ["#161a12", "#070806"], glow: "#c9c08a", accent: "#7c8f55" },
+    dlc: { sky: ["#241812", "#0a0706"], glow: "#f2b25a", accent: "#c0603a" },
+  };
+
+  const FEM = new Set("marie lea emma chloe ines jade louise alice lina rose anna mia julia juliette manon sarah lucie clara zoe eva louna ambre agathe margaux mathilde pauline laura julie sophie nathalie isabelle sandrine valerie celine aurelie emilie elodie stephanie christine catherine sylvie monique francoise nicole anne helene claire charlotte victoria elise lola nina romane oceane marine melanie audrey caroline virginie sabrina karine laetitia amandine morgane justine fanny coralie delphine estelle gaelle yasmine sofia maya lena iris adele capucine apolline josephine margot noemie lou nour fatima aicha myriam sonia leila mariam salome oriane axelle maelle anais cassandre eloise heloise gabrielle jessica jennifer emily olivia sophia isabella ava mila ella grace hannah alix beatrice brigitte chantal colette denise diane elisabeth elizabeth eve florence genevieve ingrid jacqueline jeanne josiane lisa maeva marion martine mireille muriel odile patricia rachel regine sabine severine solene suzanne sylviane therese veronique yvette yvonne zoé lilou lise maud agnes carmen".split(" "));
+  const MASC = new Set("pierre philippe jerome baptiste maxime antoine guillaume theophile luca joshua stephane christophe alexandre etienne jeremie emile achille hercule aime rene andre jose elie noe mike steve dave bruce kyle shane wayne jesse moussa issa yahya hamza mustapha mustafa ilya nikita george jean-baptiste jean-marie gilles jacques yves charles lucas matteo mattia andrea".split(" "));
 
   const $ = (id) => document.getElementById(id);
+  const ctx = $("card").getContext("2d");
   const last = { pick: null, ep: null };
+  let current = null;
 
+  const normalize = (s) => s.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
   const capitalize = (s) => s.trim().replace(/\s+/g, " ").replace(/(^|[\s-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase());
+
+  function guessGender(raw) {
+    const full = normalize(raw);
+    if (!full) return null;
+    if (MASC.has(full)) return "m";
+    const first = full.split(/[\s-]/)[0];
+    if (FEM.has(full) || FEM.has(first)) return "f";
+    if (MASC.has(first)) return "m";
+    return /(a|e|ie|ine|elle)$/.test(first) ? "f" : "m";
+  }
 
   function randomIndex(length) {
     const buf = new Uint32Array(1);
     crypto.getRandomValues(buf);
     return buf[0] % length;
   }
+  const rand = () => randomIndex(1e9) / 1e9;
 
   function drawDifferent(list, previous) {
     if (list.length < 2) return list[0];
@@ -257,10 +314,234 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     return DATA.filter((e) => e.cat === cat);
   }
 
-  function replay(el, cls) {
-    el.classList.remove(cls);
+  const gender = () => document.querySelector('input[name="genre"]:checked').value;
+
+  function titleFor(display, ep, g) {
+    const text = ep[g === "f" ? 1 : 0];
+    return /^(le |la |l')/.test(text) ? `${display} ${text}` : `${display}, ${text}`;
+  }
+
+  function replay(el) {
+    el.classList.remove("flash");
     void el.offsetWidth;
-    el.classList.add(cls);
+    el.classList.add("flash");
+  }
+
+  // ---- Carte ----
+  const W = 630, H = 880;
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function fitText(text, maxWidth, size, weight, family) {
+    let s = size;
+    do { ctx.font = `${weight} ${s}px ${family}`; s -= 1; } while (ctx.measureText(text).width > maxWidth && s > 12);
+  }
+
+  function wrap(text, x, y, maxWidth, lineHeight) {
+    const words = text.split(" ");
+    let line = "";
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        ctx.fillText(line, x, y);
+        line = word;
+        y += lineHeight;
+      } else {
+        line = test;
+      }
+    }
+    ctx.fillText(line, x, y);
+  }
+
+  function branch(x, y, len, angle, depth, width, color) {
+    if (depth === 0 || len < 4) return;
+    const x2 = x + Math.cos(angle) * len;
+    const y2 = y + Math.sin(angle) * len;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + (rand() - .5) * len * .3, (y + y2) / 2, x2, y2);
+    ctx.stroke();
+    const n = depth > 6 ? 2 : 2 + randomIndex(2);
+    for (let i = 0; i < n; i++) {
+      branch(x2, y2, len * (.68 + rand() * .14), angle + (rand() - .5) * 1.1, depth - 1, width * .68, color);
+    }
+  }
+
+  function drawArt(x, y, w, h, pal) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.clip();
+
+    const sky = ctx.createLinearGradient(0, y, 0, y + h);
+    sky.addColorStop(0, pal.sky[0]);
+    sky.addColorStop(1, pal.sky[1]);
+    ctx.fillStyle = sky;
+    ctx.fillRect(x, y, w, h);
+
+    const cx = x + w / 2, cy = y + h * .42;
+    const halo = ctx.createRadialGradient(cx, cy, 10, cx, cy, h * .75);
+    halo.addColorStop(0, pal.glow + "88");
+    halo.addColorStop(.4, pal.glow + "22");
+    halo.addColorStop(1, "transparent");
+    ctx.fillStyle = halo;
+    ctx.fillRect(x, y, w, h);
+
+    ctx.strokeStyle = pal.glow + "55";
+    ctx.lineWidth = 2;
+    const rings = 3 + randomIndex(3);
+    for (let i = 0; i < rings; i++) {
+      ctx.beginPath();
+      ctx.arc(cx + (rand() - .5) * 80, cy + (rand() - .5) * 50, 40 + rand() * 110, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.moveTo(cx, y + 10);
+    ctx.lineTo(cx, y + h - 10);
+    ctx.stroke();
+
+    ctx.shadowColor = pal.glow;
+    ctx.shadowBlur = 18;
+    ctx.lineCap = "round";
+    branch(cx, y + h + 10, h * .26, -Math.PI / 2, 9, 16, pal.glow);
+    ctx.shadowBlur = 0;
+
+    const ground = ctx.createLinearGradient(0, y + h * .75, 0, y + h);
+    ground.addColorStop(0, "transparent");
+    ground.addColorStop(1, "#000000cc");
+    ctx.fillStyle = ground;
+    ctx.fillRect(x, y, w, h);
+
+    for (let i = 0; i < 70; i++) {
+      ctx.fillStyle = pal.glow + (rand() > .5 ? "cc" : "66");
+      ctx.beginPath();
+      ctx.arc(x + rand() * w, y + rand() * h, rand() * 2.2 + .4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = pal.accent + "55";
+    ctx.beginPath();
+    ctx.moveTo(x, y + h);
+    for (let px = 0; px <= w; px += 30) ctx.lineTo(x + px, y + h - 20 - rand() * 35);
+    ctx.lineTo(x + w, y + h);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawCard(c) {
+    const pal = PALETTES[c.pick.dlc ? "dlc" : c.pick.cat];
+    const gold = "#d4b46a";
+    ctx.clearRect(0, 0, W, H);
+
+    roundRect(0, 0, W, H, 28);
+    ctx.fillStyle = "#0b0a07";
+    ctx.fill();
+    roundRect(14, 14, W - 28, H - 28, 20);
+    const frame = ctx.createLinearGradient(0, 0, W, H);
+    frame.addColorStop(0, "#3a3220");
+    frame.addColorStop(.5, "#1e1a12");
+    frame.addColorStop(1, "#3a3220");
+    ctx.fillStyle = frame;
+    ctx.fill();
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Bandeau du titre
+    roundRect(34, 34, W - 68, 62, 10);
+    ctx.fillStyle = "#15120c";
+    ctx.fill();
+    ctx.strokeStyle = gold + "aa";
+    ctx.stroke();
+    ctx.fillStyle = gold;
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "left";
+    fitText(c.title, W - 110, 34, 700, '"Cormorant SC", Georgia, serif');
+    ctx.fillText(c.title, 52, 66);
+
+    // Illustration
+    const artX = 34, artY = 108, artW = W - 68, artH = 400;
+    drawArt(artX, artY, artW, artH, pal);
+    ctx.strokeStyle = gold + "aa";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(artX, artY, artW, artH);
+
+    // Ligne de type
+    roundRect(34, 520, W - 68, 54, 10);
+    ctx.fillStyle = "#15120c";
+    ctx.fill();
+    ctx.strokeStyle = gold + "aa";
+    ctx.stroke();
+    ctx.fillStyle = "#e6dcc0";
+    fitText(c.pick.name, W - 250, 26, 600, "Spectral, Georgia, serif");
+    ctx.fillText(c.pick.name, 52, 547);
+    ctx.textAlign = "right";
+    ctx.fillStyle = pal.accent;
+    ctx.font = '700 20px "Cormorant SC", Georgia, serif';
+    ctx.fillText(`${LABELS[c.pick.cat]} · ${RARITY[c.pick.cat]}`, W - 52, 547);
+
+    // Encart de texte
+    roundRect(34, 586, W - 68, 200, 10);
+    ctx.fillStyle = "#e9e0c8";
+    ctx.fill();
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = "#2a2418";
+    ctx.font = '600 21px Spectral, Georgia, serif';
+    wrap(`Origine : ${c.pick.dlc ? "Shadow of the Erdtree" : "Elden Ring"}. Porte le nom de ${c.display} dans l'Entre-terre.`, 54, 626, W - 108, 28);
+    ctx.font = 'italic 21px Spectral, Georgia, serif';
+    ctx.fillStyle = "#4a3f2c";
+    wrap(`« ${c.flavor} »`, 54, 704, W - 108, 28);
+
+    // Pied de carte
+    ctx.fillStyle = "#9b917a";
+    ctx.font = '500 17px "Cormorant SC", Georgia, serif';
+    ctx.fillText(`N° ${String(c.number).padStart(3, "0")}/${DATA.length} · La Forge des Sans-éclat`, 40, 830);
+
+    roundRect(W - 168, 800, 128, 52, 10);
+    ctx.fillStyle = "#15120c";
+    ctx.fill();
+    ctx.strokeStyle = gold;
+    ctx.stroke();
+    ctx.fillStyle = gold;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = '700 30px "Cormorant SC", Georgia, serif';
+    ctx.fillText(`${c.atk} / ${c.def}`, W - 104, 827);
+    ctx.textAlign = "left";
+  }
+
+  function stats(cat) {
+    const base = { boss: 6, pnj: 3, ennemi: 1 }[cat];
+    return [base + randomIndex(5), base + randomIndex(5)];
+  }
+
+  function render() {
+    if (!current) return;
+    current.title = titleFor(current.display, current.ep, gender());
+    current.flavor = current.flavorRaw.replaceAll("{e}", gender() === "f" ? "e" : "");
+    $("title").textContent = current.title;
+    $("caste").textContent = current.pick.name;
+    $("tags").replaceChildren(...[
+      [LABELS[current.pick.cat], "tag"],
+      [current.pick.dlc ? "Shadow of the Erdtree" : "Jeu de base", current.pick.dlc ? "tag dlc" : "tag"],
+    ].map(([text, cls]) => {
+      const el = document.createElement("span");
+      el.className = cls;
+      el.textContent = text;
+      return el;
+    }));
+    drawCard(current);
   }
 
   function forge() {
@@ -269,32 +550,28 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     const ep = drawDifferent(EPITHETS, last.ep);
     last.pick = pick;
     last.ep = ep;
-
-    $("title").textContent = display + ep.sep + ep.text;
-    $("name").textContent = pick.name;
-    $("tags").replaceChildren(...[
-      [LABELS[pick.cat], "tag"],
-      [pick.dlc ? "Shadow of the Erdtree" : "Jeu de base", pick.dlc ? "tag dlc" : "tag"],
-    ].map(([text, cls]) => {
-      const el = document.createElement("span");
-      el.className = cls;
-      el.textContent = text;
-      return el;
-    }));
+    const [atk, def] = stats(pick.cat);
+    current = {
+      display, pick, ep, atk, def,
+      flavorRaw: FLAVORS[randomIndex(FLAVORS.length)],
+      number: DATA.indexOf(pick) + 1,
+    };
     $("status").textContent = "";
-
-    replay($("title"), "flash");
-    replay($("name"), "flash");
-    const bar = $("bar");
-    bar.style.animation = "none";
-    void bar.offsetWidth;
-    bar.style.animation = "";
+    render();
+    replay($("title"));
+    replay($("caste"));
   }
 
+  $("prenom").addEventListener("input", () => {
+    const g = guessGender($("prenom").value);
+    if (g) $(`genre-${g}`).checked = true;
+  });
   $("forge").addEventListener("submit", (e) => { e.preventDefault(); forge(); });
   document.querySelectorAll('input[name="cat"]').forEach((r) => r.addEventListener("change", forge));
+  document.querySelectorAll('input[name="genre"]').forEach((r) => r.addEventListener("change", render));
+
   $("copy").addEventListener("click", () => {
-    const text = `${$("title").textContent} — ${$("name").textContent}`;
+    const text = `${$("title").textContent} — ${$("caste").textContent}`;
     navigator.clipboard.writeText(text)
       .then(() => { $("status").textContent = "Copié."; })
       .catch(() => {
@@ -304,6 +581,17 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
         $("status").textContent = "Copie bloquée : texte sélectionné, fais Ctrl+C.";
       });
   });
+
+  const framed = (() => { try { return window.self !== window.top; } catch { return true; } })();
+  if (!framed) {
+    $("download").hidden = false;
+    $("download").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = $("card").toDataURL("image/png");
+      a.download = `${normalize(current.display).replace(/[^a-z0-9]+/g, "-") || "sans-eclat"}-carte.png`;
+      a.click();
+    });
+  }
 
   $("codex-count").textContent = `${DATA.length} noms répertoriés, dont ${DATA.filter((e) => e.dlc).length} issus de Shadow of the Erdtree.`;
   SECTIONS.forEach(([label, test]) => {
@@ -321,5 +609,10 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   });
 
   forge();
+  Promise.all([
+    document.fonts.load('700 34px "Cormorant SC"'),
+    document.fonts.load("600 21px Spectral"),
+    document.fonts.load("italic 21px Spectral"),
+  ]).then(render, render);
 })();
 </script>
