@@ -220,67 +220,67 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ["Shadow of the Erdtree", (e) => e.dlc],
   ];
 
-  // Épithètes : [masculin, féminin, illustration]
+  // Épithètes tirées des noms du jeu : [masculin, féminin]
   const EPITHETS = [
-    ["le Déchu", "la Déchue", "11-roi-dechu"],
-    ["le Greffé", "la Greffée", "19-greffe"],
-    ["Roi de la Pleine Lune", "Reine de la Pleine Lune", "03-sorcier"],
-    ["Fléau des astres", "Fléau des astres", "08-astres"],
-    ["Seigneur du Blasphème", "Dame du Blasphème", "06-serpent"],
-    ["Roi des Réprouvés", "Reine des Réprouvés", "11-roi-dechu"],
-    ["la Lame d'ébène", "la Lame d'ébène", "15-lame"],
-    ["l'Omniscient", "l'Omnisciente", "20-tome"],
-    ["Premier Seigneur d'Elden", "Première Dame d'Elden", "07-arbre"],
-    ["le Guerrier", "la Guerrière", "01-chevalier"],
-    ["Lame de Miquella", "Lame de Miquella", "15-lame"],
-    ["Dieu de la Putréfaction", "Déesse de la Putréfaction", "09-fleur"],
-    ["Seigneur du Sang", "Dame du Sang", "13-sang"],
-    ["le Réprouvé", "la Réprouvée", "11-roi-dechu"],
-    ["Né du Vide", "Née du Vide", "08-astres"],
-    ["Étoile des Ténèbres", "Étoile des Ténèbres", "08-astres"],
-    ["Chevalier de l'Arbre-Saint", "Chevalière de l'Arbre-Saint", "01-chevalier"],
-    ["le Décomposé", "la Décomposée", "02-dragon"],
-    ["le Brouillard glacial", "le Brouillard glacial", "02-dragon"],
-    ["la Fleur flétrie", "la Fleur flétrie", "09-fleur"],
-    ["Voleur de feu", "Voleuse de feu", "12-flamme"],
-    ["Meneur des Couteaux noirs", "Meneuse des Couteaux noirs", "10-assassin"],
-    ["Prêtre du Sang", "Prêtresse du Sang", "13-sang"],
-    ["Chevalier carien", "Chevalière carienne", "03-sorcier"],
-    ["le Grand Ours rouge", "la Grande Ourse rouge", "05-ours"],
-    ["Chevalier des Lunes jumelles", "Chevalière des Lunes jumelles", "03-sorcier"],
-    ["l'Empaleur", "l'Empaleuse", "06-serpent"],
-    ["Saint du Bourgeon", "Sainte du Bourgeon", "09-fleur"],
-    ["Seigneur de la Flamme de la Frénésie", "Dame de la Flamme de la Frénésie", "12-flamme"],
-    ["Père des Doigts", "Mère des Doigts", "14-doigts"],
-    ["l'Effroyable", "l'Effroyable", "02-dragon"],
-    ["Consort promis", "Consorte promise", "07-arbre"],
-    ["Consort de Miquella", "Consorte de Miquella", "07-arbre"],
-    ["Inquisiteur aîné", "Inquisitrice aînée", "12-flamme"],
-    ["Feuille-Sèche", "Feuille-Sèche", "01-chevalier"],
-    ["le Sorcier", "la Sorcière", "03-sorcier"],
-    ["le Demi-Loup", "la Demi-Louve", "04-loup"],
-    ["le Couturier", "la Couturière", "20-tome"],
-    ["Chasseur de Doigts sanglants", "Chasseuse de Doigts sanglants", "10-assassin"],
-    ["l'Albinauréen", "l'Albinauréenne", "16-archer"],
-    ["Chasseur des morts", "Chasseuse des morts", "16-archer"],
-    ["Compagnon du lit de mort", "Compagne du lit de mort", "14-doigts"],
-    ["le Récusant", "la Récusante", "01-chevalier"],
-    ["Guerrier-jarre", "Guerrière-jarre", "17-jarre"],
-    ["Liseur de Doigts", "Liseuse de Doigts", "14-doigts"],
-    ["le Truand", "la Truande", "18-chateau"],
-    ["Pasteur des vœux", "Pasteure des vœux", "20-tome"],
-    ["Serviteur carien", "Servante carienne", "18-chateau"],
-    ["l'Éternel", "l'Éternelle", "07-arbre"],
-    ["le Doré", "la Dorée", "07-arbre"],
-    ["le Bienveillant", "la Bienveillante", "07-arbre"],
-    ["l'Oisif", "l'Oisive", "18-chateau"],
-    ["Dévoreur de Sans-éclat", "Dévoreuse de Sans-éclat", "10-assassin"],
-    ["Griffe de bête", "Griffe de bête", "04-loup"],
-    ["Châtelain du château ombragé", "Châtelaine du château ombragé", "18-chateau"],
-    ["Doigt sanglant violet", "Doigt sanglant violet", "10-assassin"],
-    ["le Sans-tête", "la Sans-tête", "01-chevalier"],
-    ["Poing-de-fer", "Poing-de-fer", "01-chevalier"],
-    ["Tueur de Réprouvés", "Tueuse de Réprouvés", "11-roi-dechu"],
+    ["le Déchu", "la Déchue"],
+    ["le Greffé", "la Greffée"],
+    ["Roi de la Pleine Lune", "Reine de la Pleine Lune"],
+    ["Fléau des astres", "Fléau des astres"],
+    ["Seigneur du Blasphème", "Dame du Blasphème"],
+    ["Roi des Réprouvés", "Reine des Réprouvés"],
+    ["la Lame d'ébène", "la Lame d'ébène"],
+    ["l'Omniscient", "l'Omnisciente"],
+    ["Premier Seigneur d'Elden", "Première Dame d'Elden"],
+    ["le Guerrier", "la Guerrière"],
+    ["Lame de Miquella", "Lame de Miquella"],
+    ["Dieu de la Putréfaction", "Déesse de la Putréfaction"],
+    ["Seigneur du Sang", "Dame du Sang"],
+    ["le Réprouvé", "la Réprouvée"],
+    ["Né du Vide", "Née du Vide"],
+    ["Étoile des Ténèbres", "Étoile des Ténèbres"],
+    ["Chevalier de l'Arbre-Saint", "Chevalière de l'Arbre-Saint"],
+    ["le Décomposé", "la Décomposée"],
+    ["le Brouillard glacial", "le Brouillard glacial"],
+    ["la Fleur flétrie", "la Fleur flétrie"],
+    ["Voleur de feu", "Voleuse de feu"],
+    ["Meneur des Couteaux noirs", "Meneuse des Couteaux noirs"],
+    ["Prêtre du Sang", "Prêtresse du Sang"],
+    ["Chevalier carien", "Chevalière carienne"],
+    ["le Grand Ours rouge", "la Grande Ourse rouge"],
+    ["Chevalier des Lunes jumelles", "Chevalière des Lunes jumelles"],
+    ["l'Empaleur", "l'Empaleuse"],
+    ["Saint du Bourgeon", "Sainte du Bourgeon"],
+    ["Seigneur de la Flamme de la Frénésie", "Dame de la Flamme de la Frénésie"],
+    ["Père des Doigts", "Mère des Doigts"],
+    ["l'Effroyable", "l'Effroyable"],
+    ["Consort promis", "Consorte promise"],
+    ["Consort de Miquella", "Consorte de Miquella"],
+    ["Inquisiteur aîné", "Inquisitrice aînée"],
+    ["Feuille-Sèche", "Feuille-Sèche"],
+    ["le Sorcier", "la Sorcière"],
+    ["le Demi-Loup", "la Demi-Louve"],
+    ["le Couturier", "la Couturière"],
+    ["Chasseur de Doigts sanglants", "Chasseuse de Doigts sanglants"],
+    ["l'Albinauréen", "l'Albinauréenne"],
+    ["Chasseur des morts", "Chasseuse des morts"],
+    ["Compagnon du lit de mort", "Compagne du lit de mort"],
+    ["le Récusant", "la Récusante"],
+    ["Guerrier-jarre", "Guerrière-jarre"],
+    ["Liseur de Doigts", "Liseuse de Doigts"],
+    ["le Truand", "la Truande"],
+    ["Pasteur des vœux", "Pasteure des vœux"],
+    ["Serviteur carien", "Servante carienne"],
+    ["l'Éternel", "l'Éternelle"],
+    ["le Doré", "la Dorée"],
+    ["le Bienveillant", "la Bienveillante"],
+    ["l'Oisif", "l'Oisive"],
+    ["Dévoreur de Sans-éclat", "Dévoreuse de Sans-éclat"],
+    ["Griffe de bête", "Griffe de bête"],
+    ["Châtelain du château ombragé", "Châtelaine du château ombragé"],
+    ["Doigt sanglant violet", "Doigt sanglant violet"],
+    ["le Sans-tête", "la Sans-tête"],
+    ["Poing-de-fer", "Poing-de-fer"],
+    ["Tueur de Réprouvés", "Tueuse de Réprouvés"],
   ];
 
   // {e} devient "e" au féminin, {il} devient "elle"
@@ -332,6 +332,10 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   const FEM = new Set("marie lea emma chloe ines jade louise alice lina rose anna mia julia juliette manon sarah lucie clara zoe eva louna ambre agathe margaux mathilde pauline laura julie sophie nathalie isabelle sandrine valerie celine aurelie emilie elodie stephanie christine catherine sylvie monique francoise nicole anne helene claire charlotte victoria elise lola nina romane oceane marine melanie audrey caroline virginie sabrina karine laetitia amandine morgane justine fanny coralie delphine estelle gaelle yasmine sofia maya lena iris adele capucine apolline josephine margot noemie lou nour fatima aicha myriam sonia leila mariam salome oriane axelle maelle anais cassandre eloise heloise gabrielle jessica jennifer emily olivia sophia isabella ava mila ella grace hannah alix beatrice brigitte chantal colette denise diane elisabeth elizabeth eve florence genevieve ingrid jacqueline jeanne josiane lisa maeva marion martine mireille muriel odile patricia rachel regine sabine severine solene suzanne sylviane therese veronique yvette yvonne zoé lilou lise maud agnes carmen".split(" "));
   const MASC = new Set("pierre philippe jerome baptiste maxime antoine guillaume theophile luca joshua stephane christophe alexandre etienne jeremie emile achille hercule aime rene andre jose elie noe mike steve dave bruce kyle shane wayne jesse moussa issa yahya hamza mustapha mustafa ilya nikita george jean-baptiste jean-marie gilles jacques yves charles lucas matteo mattia andrea".split(" "));
 
+  const SCENES = [
+    "01-plaine-arbre", "02-soldats", "03-dragon", "04-mage-lune", "05-chevalier-cheval",
+    "06-duel", "07-caelid", "08-chateau-orage", "09-site-de-grace", "10-montagnes",
+  ];
   const ILLUSTRATIONS = new Map();
   function illustration(name) {
     if (!ILLUSTRATIONS.has(name)) {
@@ -344,7 +348,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
   const $ = (id) => document.getElementById(id);
   const ctx = $("card").getContext("2d");
-  const last = { pick: null, ep: null };
+  const last = { pick: null, ep: null, scene: null };
   let current = null;
 
   const normalize = (s) => s.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -737,7 +741,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   }
 
   function requestArt(c) {
-    const img = illustration(c.ep[2]);
+    const img = illustration(c.scene);
     c.art = null;
     const show = () => {
       if (current !== c) return;
@@ -759,11 +763,13 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     const display = capitalize($("prenom").value) || "Sans-éclat";
     const pick = drawDifferent(currentPool(), last.pick);
     const ep = drawDifferent(EPITHETS, last.ep);
+    const scene = drawDifferent(SCENES, last.scene);
     last.pick = pick;
     last.ep = ep;
+    last.scene = scene;
     const [atk, def] = stats(pick.cat);
     current = {
-      display, pick, ep, atk, def,
+      display, pick, ep, scene, atk, def,
       lore: loreParts(pick),
       number: DATA.indexOf(pick) + 1,
     };
