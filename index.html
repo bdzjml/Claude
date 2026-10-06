@@ -17,6 +17,7 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { background: var(--bg); color: var(--fg); }
 body {
   font-family: var(--body);
@@ -118,7 +119,7 @@ button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
   color: var(--fg);
   overflow-wrap: anywhere;
 }
-.lore { margin: 0; max-width: 60ch; color: var(--fg); opacity: .9; }
+.lore { white-space: pre-line; margin: 0; max-width: 60ch; color: var(--fg); opacity: .9; }
 .tags { display: flex; gap: .5rem; flex-wrap: wrap; }
 .tag {
   font-family: var(--display);
@@ -129,13 +130,14 @@ button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
   color: var(--muted);
 }
 .tag.dlc { border-color: var(--rot); color: var(--rot); }
+.tag.holo { border-color: #8fd3ff; color: #c9b8ff; }
 .actions { display: flex; gap: .6rem; flex-wrap: wrap; }
 .status { min-height: 1.4em; margin: 0; color: var(--muted); font-size: .9rem; }
 .flash { animation: flash 500ms ease-out; }
 @keyframes flash { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
 .card-wrap { display: grid; gap: .5rem; justify-items: center; }
-#card { width: 100%; max-width: 320px; height: auto; aspect-ratio: 1065 / 1477; border-radius: 14px; box-shadow: 0 12px 40px rgba(0, 0, 0, .6); }
+#card { width: 100%; max-width: 320px; height: auto; aspect-ratio: 1024 / 1536; border-radius: 14px; box-shadow: 0 12px 40px rgba(0, 0, 0, .6); }
 .card-wrap small { color: var(--muted); font-size: .8rem; text-align: center; }
 
 .codex h2 { font-family: var(--display); color: var(--gold); letter-spacing: .1em; font-size: 1.4rem; margin: 0 0 .3rem; }
@@ -163,6 +165,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
       <input id="prenom" type="text" maxlength="40" placeholder="Entrez votre nom">
       <button type="submit">Forger</button>
     </div>
+    <p class="status" id="status" role="status"></p>
     <fieldset class="filters">
       <legend class="label">Accord du titre</legend>
       <label class="chip"><input type="radio" name="genre" id="genre-m" value="m" checked><span>Masculin</span></label>
@@ -178,7 +181,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     </fieldset>
   </form>
 
-  <section class="result" aria-live="polite">
+  <section class="result" id="result" aria-live="polite" hidden>
     <div class="identity">
       <div class="forged">
         <strong id="title"></strong>
@@ -190,10 +193,9 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
         <button type="button" class="ghost" id="copy">Copier</button>
         <button type="button" class="ghost" id="download" hidden>Télécharger la carte</button>
       </div>
-      <p class="status" id="status"></p>
     </div>
     <div class="card-wrap">
-      <canvas id="card" width="1065" height="1477" role="img" aria-label="Carte à collectionner du personnage forgé"></canvas>
+      <canvas id="card" width="1024" height="1536" role="img" aria-label="Carte à collectionner du personnage forgé"></canvas>
       <small id="card-hint">Clic droit ou appui long sur la carte pour l'enregistrer.</small>
     </div>
   </section>
@@ -208,11 +210,13 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 </main>
 
 <script src="names.js"></script>
+<script src="lore.js"></script>
 <script>
 (() => {
   const DATA = window.ER_DATA;
+  const T = window.ER_TITLES;
+  const L = window.ER_LORE;
   const LABELS = { boss: "Boss", pnj: "PNJ", ennemi: "Ennemi" };
-  const RARITY = { boss: "Légendaire", pnj: "Rare", ennemi: "Commune" };
   const SECTIONS = [
     ["Boss", (e) => e.cat === "boss" && !e.dlc],
     ["PNJ", (e) => e.cat === "pnj" && !e.dlc],
@@ -283,57 +287,51 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ["Tueur de Réprouvés", "Tueuse de Réprouvés"],
   ];
 
-  // Description : un fait du lore d'Elden Ring + la caste + une touche d'époque contemporaine.
-  // {e} → "e" au féminin, {il}/{Il} → elle/Elle, {le} → la, {name} → prénom, {caste}, {ep} → épithète
-  const LORE = {
-    canon: [
-      "Depuis que Marika a brisé le Cercle d'Elden, {name} arpente l'Entre-terre en quête des Grandes Runes.",
-      "Rappelé{e} d'entre les morts par la grâce, {name} est un{e} Sans-éclat de plus en route vers l'Arbre-Monde.",
-      "{name} a survécu à la Nuit des Couteaux noirs, ce qui en dit long sur son talent pour éviter les embrouilles.",
-      "Guidé{e} par la grâce dorée, {name} a quitté la Table ronde sans prévenir les Deux Doigts.",
-      "{name} a voulu entrer au château de Voilorage sans passer par Margit. Ça ne s'est pas bien passé.",
-      "Formé{e} à Raya Lucaria sous l'œil de Rennala, {name} maîtrise la pierre d'éclat mieux que son agenda.",
-      "{name} a vu Radahn retenir les étoiles à mains nues et le raconte à chaque repas de famille.",
-      "Rescapé{e} de la putréfaction écarlate de Caelid, {name} se méfie de tout ce qui fleurit.",
-      "{name} a ouvert un coffre au fond d'une grotte. Patches l'attendait. Depuis, {il} ne fait plus confiance à personne.",
-      "En selle sur Torrent, {name} a traversé l'Entre-terre, de Nécrolimbe jusqu'aux cimes des Géants.",
-      "{name} a appris que Marika et Radagon ne faisaient qu'un, et a dû s'asseoir un moment.",
-      "Godrick a voulu greffer un bras de {name} à sa collection. {Il} a poliment refusé.",
-      "{name} a juré fidélité à Ranni, sans trop lire les petites lignes du contrat.",
-    ],
-    canonDlc: [
-      "Sur les traces de Miquella, {name} a posé la main sur le cocon de Mohg et s'est réveillé{e} dans les terres de l'Ombre.",
-      "{name} a affronté les flammes de Messmer l'Empaleur et n'a jamais retrouvé ses sourcils.",
-      "Dans le Royaume de l'Ombre, {name} a découvert que les fragments de l'Arbre-Ombre comptent plus que les runes.",
-    ],
-    caste: [
-      "Les chroniques {le} rangent parmi les « {caste} », pour le meilleur et surtout pour le pire.",
-      "On {le} confond souvent avec « {caste} », ce qui lui vaut des invasions non sollicitées.",
-      "Son destin croise celui de « {caste} » plus souvent qu'{il} ne le voudrait.",
-      "Les messages au sol devant chez {le} préviennent tous : « {caste} en vue ».",
-    ],
-    modern: [
-      "Son titre de « {ep} » trône désormais en tête de son profil LinkedIn.",
-      "Entre deux boss, {il} cherche encore le code Wi-Fi du site de grâce.",
-      "{Il} a invoqué de l'aide en ligne contre un boss, mais jure sur Instagram l'avoir battu seul{e}.",
-      "Ses fioles de larmes écarlates arrivent désormais par Uber Eats, toujours tièdes.",
-      "{Il} a perdu 400 000 runes en tombant d'une falaise, à peu près le prix d'un deux-pièces à Paris.",
-      "Le matin, {il} affronte Malenia ; le soir, le RER B. Personne ne sait lequel est le plus cruel.",
-      "En réunion Teams, {name} répète « laissez-moi la solo » dès qu'un dossier devient difficile.",
-      "Sa trottinette électrique n'a pas de double saut, et {il} le vit très mal.",
-      "Le groupe WhatsApp de la Table ronde l'a mis{e} en sourdine après le quarantième mème.",
-      "{name} meurt plus souvent que son téléphone ne se décharge, et ce n'est pas peu dire.",
-      "Ses runes dorment en crypto. Comme d'habitude, tout a fini au pied d'une falaise.",
-      "Au bureau, on l'appelle « {ep} ». Personne n'ose demander pourquoi.",
-      "{Il} a mis « {ep} » dans sa bio Tinder. Les matchs ont chuté, les invasions ont explosé.",
-    ],
-  };
-
   const FEM = new Set("marie lea emma chloe ines jade louise alice lina rose anna mia julia juliette manon sarah lucie clara zoe eva louna ambre agathe margaux mathilde pauline laura julie sophie nathalie isabelle sandrine valerie celine aurelie emilie elodie stephanie christine catherine sylvie monique francoise nicole anne helene claire charlotte victoria elise lola nina romane oceane marine melanie audrey caroline virginie sabrina karine laetitia amandine morgane justine fanny coralie delphine estelle gaelle yasmine sofia maya lena iris adele capucine apolline josephine margot noemie lou nour fatima aicha myriam sonia leila mariam salome oriane axelle maelle anais cassandre eloise heloise gabrielle jessica jennifer emily olivia sophia isabella ava mila ella grace hannah alix beatrice brigitte chantal colette denise diane elisabeth elizabeth eve florence genevieve ingrid jacqueline jeanne josiane lisa maeva marion martine mireille muriel odile patricia rachel regine sabine severine solene suzanne sylviane therese veronique yvette yvonne zoé lilou lise maud agnes carmen".split(" "));
   const MASC = new Set("pierre philippe jerome baptiste maxime antoine guillaume theophile luca joshua stephane christophe alexandre etienne jeremie emile achille hercule aime rene andre jose elie noe mike steve dave bruce kyle shane wayne jesse moussa issa yahya hamza mustapha mustafa ilya nikita george jean-baptiste jean-marie gilles jacques yves charles lucas matteo mattia andrea".split(" "));
 
   const ARTWORKS = Array.from({ length: 9 }, (_, i) => `illustrations/art-${i + 1}.jpg`);
-  const FRAME_SRC = "illustrations/cadre-holo.webp";
+  const HOLO_CHANCE = 1 / 8;
+
+  // Deux cadres, zones mesurées au pixel sur chaque image
+  const FRAMES = {
+    gold: {
+      src: "illustrations/cadre.webp", w: 1024, h: 1536, artOnTop: false,
+      ink: "#1a1108", glow: false, foot: "#e3d8bd",
+      zone: {
+        art: { x: 92, y: 205, w: 840, h: 557 },
+        title: { x: 140, cy: 132, w: 680 }, cost: { cx: 887, cy: 134, r: 32 },
+        type: { x: 155, cy: 831, w: 660 }, rarity: { cx: 887, cy: 831 },
+        text: { x: 145, y: 930, w: 740, bottom: 1318 },
+        stats: { cx: 856, cy: 1393 }, foot: { x: 140, y: 1428, gap: 28 },
+      },
+    },
+    holo: {
+      src: "illustrations/cadre-holo.webp", w: 1065, h: 1477, artOnTop: true,
+      ink: "#0e1630", glow: true, foot: "#0e1630",
+      zone: {
+        art: { x: 94, y: 167, w: 880, h: 641 },
+        title: { x: 92, cy: 113, w: 800 }, cost: { cx: 958, cy: 112, r: 28 },
+        type: { x: 96, cy: 863, w: 800 }, rarity: { cx: 950, cy: 863 },
+        text: { x: 112, y: 936, w: 840, bottom: 1300 },
+        plaque: { x: 830, y: 1318, w: 160, h: 70 }, foot: { x: 96, y: 1408, gap: 0 },
+      },
+    },
+  };
+
+  const SERIF = '"Cormorant SC", Georgia, serif';
+  const BODY = "Spectral, Georgia, serif";
+  const GEM = { boss: "#c0392b", pnj: "#3f7cc0", ennemi: "#5f6b4a", dlc: "#e0662f" };
+  const COST = { boss: 3, pnj: 2, ennemi: 1 };
+  const SUBTYPE = { boss: "Créature légendaire — Boss", pnj: "Créature — PNJ", ennemi: "Créature — Ennemi" };
+  const RARITY_STYLE = { boss: ["#ffb347", "#a4380f", "L"], pnj: ["#f1dc9c", "#8a6a1e", "R"], ennemi: ["#4a4a4a", "#0a0a0a", "C"] };
+
+  const $ = (id) => document.getElementById(id);
+  const canvas = $("card");
+  const ctx = canvas.getContext("2d");
+  let INK = "#1a1108";
+  let current = null;
+  const last = {};
 
   const ILLUSTRATIONS = new Map();
   function illustration(src) {
@@ -344,11 +342,6 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     }
     return ILLUSTRATIONS.get(src);
   }
-
-  const $ = (id) => document.getElementById(id);
-  const ctx = $("card").getContext("2d");
-  const last = { pick: null, ep: null, scene: null };
-  let current = null;
 
   const normalize = (s) => s.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
   const capitalize = (s) => s.trim().replace(/\s+/g, " ").replace(/(^|[\s-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase());
@@ -363,16 +356,28 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     return /(a|e|ie|ine|elle)$/.test(first) ? "f" : "m";
   }
 
+  // ---- Aléatoire sans répétition récente ----
   function randomIndex(length) {
     const buf = new Uint32Array(1);
     crypto.getRandomValues(buf);
     return buf[0] % length;
   }
-  function drawDifferent(list, previous) {
-    if (list.length < 2) return list[0];
-    let item;
-    do { item = list[randomIndex(list.length)]; } while (item === previous);
+  const chance = (p) => randomIndex(1e6) < p * 1e6;
+  const recent = [];
+  function fresh(list) {
+    const pool = list.filter((x) => !recent.includes(x));
+    const item = (pool.length ? pool : list)[randomIndex((pool.length ? pool : list).length)];
+    recent.push(item);
+    if (recent.length > 120) recent.shift();
     return item;
+  }
+  function freshMany(list, n) {
+    const out = [];
+    while (out.length < n) {
+      const item = fresh(list);
+      if (!out.includes(item)) out.push(item);
+    }
+    return out;
   }
 
   function currentPool() {
@@ -384,43 +389,124 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
   const gender = () => document.querySelector('input[name="genre"]:checked').value;
 
-  function titleFor(display, ep, g) {
-    const text = ep[g === "f" ? 1 : 0];
-    return /^(le |la |l')/.test(text) ? `${display} ${text}` : `${display}, ${text}`;
+  // ---- Titres forgés : 8 structures, jamais la même deux fois de suite ----
+  const TITLE_PATTERNS = ["honMark", "role", "deed", "honRole", "place", "numeral", "markRole", "canon"];
+
+  function makeTitleSpec() {
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const pattern = fresh(TITLE_PATTERNS.filter((p) => p !== last.pattern));
+      const spec = { pattern };
+      if (pattern.startsWith("hon")) spec.hon = fresh(T.honorifics);
+      if (pattern === "role" || pattern === "honRole" || pattern === "markRole") spec.role = fresh(T.roles);
+      if (pattern === "honMark" || pattern === "markRole") spec.mark = fresh(T.marks);
+      if (pattern === "deed") spec.deed = fresh(T.deeds);
+      if (pattern === "place" || pattern === "numeral") spec.place = fresh(T.places);
+      if (pattern === "numeral") spec.numeral = fresh(T.numerals);
+      if (pattern === "canon") spec.ep = fresh(EPITHETS);
+      const longest = Math.max(titleFor("Maximilienne", spec, "m").length, titleFor("Maximilienne", spec, "f").length);
+      if (longest <= 50) { last.pattern = pattern; return spec; }
+    }
+    return { pattern: "deed", deed: fresh(T.deeds) };
   }
 
-  function replay(el) {
-    el.classList.remove("flash");
-    void el.offsetWidth;
-    el.classList.add("flash");
+  function titleFor(name, spec, g) {
+    const f = g === "f" ? 1 : 0;
+    switch (spec.pattern) {
+      case "honMark": return `${spec.hon[f]} ${name} ${spec.mark}`;
+      case "role": return `${name}, ${spec.role[f]}`;
+      case "deed": return `${name} ${spec.deed}`;
+      case "honRole": return `${spec.hon[f]} ${name}, ${spec.role[f]}`;
+      case "place": return `${name} ${spec.place}`;
+      case "numeral": return `${name} ${spec.numeral} ${spec.place}`;
+      case "markRole": return `${name} ${spec.mark}, ${spec.role[f]}`;
+      default: {
+        const ep = spec.ep[f];
+        return /^(le |la |l')/.test(ep) ? `${name} ${ep}` : `${name}, ${ep}`;
+      }
+    }
   }
 
-  // ---- Carte : cadre illustrations/cadre-holo.webp (1065 × 1477), zones mesurées sur le cadre ----
-  const W = 1065, H = 1477;
-  const INK = "#0e1630";
-  const SERIF = '"Cormorant SC", Georgia, serif';
-  const BODY = "Spectral, Georgia, serif";
-  const ZONE = {
-    art: { x: 94, y: 167, w: 880, h: 641 },
-    title: { x: 92, cy: 113, w: 800 },
-    cost: { cx: 958, cy: 112 },
-    type: { x: 96, cy: 863, w: 800 },
-    rarity: { cx: 950, cy: 863 },
-    text: { x: 112, y: 936, w: 840, bottom: 1300 },
-    stats: { x: 830, y: 1318, w: 160, h: 70 },
-    foot: { x: 96, y: 1408 },
-  };
-  const GEM = { boss: "#c0392b", pnj: "#3f7cc0", ennemi: "#5f6b4a", dlc: "#e0662f" };
-  const COST = { boss: 3, pnj: 2, ennemi: 1 };
-  const SUBTYPE = { boss: "Créature légendaire — Boss", pnj: "Créature — PNJ", ennemi: "Créature — Ennemi" };
-  const RARITY_STYLE = { boss: ["#ffb347", "#a4380f", "L"], pnj: ["#f1dc9c", "#8a6a1e", "R"], ennemi: ["#4a4a4a", "#0a0a0a", "C"] };
+  function surnomFor(spec, g) {
+    const f = g === "f" ? 1 : 0;
+    if (spec.role) return spec.role[f];
+    if (spec.ep) return spec.ep[f];
+    return spec.mark || spec.deed || (spec.numeral ? `${spec.numeral} ${spec.place}` : spec.place);
+  }
 
+  // ---- Descriptions : 6 formes, matière jamais reprise d'une carte récente ----
+  const LORE_FORMS = ["chronicle", "testimony", "register", "groundMessage", "inventory", "letter"];
+  const ordinal = (n) => `${n}${n === 1 ? "re" : "e"}`;
+
+  function makeLoreSpec(pick) {
+    const form = fresh(LORE_FORMS.filter((x) => x !== last.form));
+    last.form = form;
+    const c = L.chronicle;
+    const spec = { form, n: 100 + randomIndex(9000) };
+    if (form === "chronicle") {
+      spec.parts = [fresh(pick.dlc && chance(0.7) ? c.dlcOpenings : c.openings), fresh(c.links), fresh(c.closings)];
+    } else if (form === "testimony") {
+      spec.quote = fresh(pick.dlc && chance(0.6) ? L.testimony.dlcQuotes : L.testimony.quotes);
+      spec.parts = [fresh(c.links)];
+    } else if (form === "register") {
+      spec.parts = [fresh(L.register.motives), fresh(L.register.notes)];
+    } else if (form === "groundMessage") {
+      spec.parts = [fresh(L.groundMessage.places), fresh(L.groundMessage.messages), fresh(c.closings)];
+      spec.up = randomIndex(400);
+      spec.down = randomIndex(400);
+    } else if (form === "inventory") {
+      spec.items = freshMany(L.inventory.items, 3);
+      spec.parts = [fresh(L.inventory.comments)];
+      spec.n = 2 + randomIndex(600);
+    } else {
+      spec.recipient = fresh(L.letter.recipients);
+      spec.parts = [fresh(L.letter.bodies), fresh(c.links)];
+    }
+    return spec;
+  }
+
+  function loreText(card, g) {
+    const s = card.loreSpec;
+    const p = s.parts;
+    let text;
+    switch (s.form) {
+      case "chronicle": text = p.join(" "); break;
+      case "testimony": text = `${s.quote[1]} — ${s.quote[0]}.\n${p[0]}`; break;
+      case "register": text = `Registre de la Table ronde, entrée n° ${s.n}. Arrivée : {title}. Motif : ${p[0]}. Note du greffier : {name} ${p[1]}`; break;
+      case "groundMessage": text = `Gravé par {name} devant ${p[0]} : « ${p[1]} »\nAppréciations : ${s.up} favorables, ${s.down} défavorables. ${p[2]}`; break;
+      case "inventory": text = `Inventaire de {name} à sa ${ordinal(s.n)} mort : ${s.items.join(", ")}. ${p[0]}`; break;
+      default: text = `Lettre de {name} à ${s.recipient}, jamais envoyée : « ${p[0]} »\n${p[1]}`;
+    }
+    const f = g === "f";
+    return text
+      .replaceAll("{title}", card.title)
+      .replaceAll("{surnom}", surnomFor(card.titleSpec, g))
+      .replaceAll("{name}", card.display)
+      .replaceAll("{caste}", card.pick.name)
+      .replaceAll("{e}", f ? "e" : "")
+      .replaceAll("{Il}", f ? "Elle" : "Il")
+      .replaceAll("{il}", f ? "elle" : "il")
+      .replaceAll("{lui}", f ? "elle" : "lui")
+      .replaceAll("{le}", f ? "la" : "le")
+      .replaceAll("« ", "« ")
+      .replaceAll(" »", " »");
+  }
+
+  function stats(cat) {
+    const base = { boss: 6, pnj: 3, ennemi: 1 }[cat];
+    return [base + randomIndex(5), base + randomIndex(5)];
+  }
+
+  // ---- Dessin de la carte ----
   function fitText(text, maxWidth, size, weight, family) {
     let s = size;
     do { ctx.font = `${weight} ${s}px ${family}`; s -= 1; } while (ctx.measureText(text).width > maxWidth && s > 14);
   }
 
   function wrapLines(text, maxWidth) {
+    return text.split("\n").flatMap((para) => wrapParagraph(para, maxWidth));
+  }
+
+  function wrapParagraph(text, maxWidth) {
     const lines = [];
     let line = "";
     for (const word of text.split(" ")) {
@@ -473,31 +559,6 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ctx.stroke();
   }
 
-  function drawArt(c) {
-    const { x, y, w, h } = ZONE.art;
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(x, y, w, h);
-    ctx.clip();
-    if (c.art) {
-      const scale = Math.max(w / c.art.naturalWidth, h / c.art.naturalHeight);
-      const iw = c.art.naturalWidth * scale, ih = c.art.naturalHeight * scale;
-      ctx.drawImage(c.art, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
-    } else {
-      const g = ctx.createLinearGradient(0, y, 0, y + h);
-      g.addColorStop(0, "#2a2116");
-      g.addColorStop(1, "#0d0a06");
-      ctx.fillStyle = g;
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = "#b9a77e";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = `italic 32px ${BODY}`;
-      ctx.fillText("L'enluminure arrive…", x + w / 2, y + h / 2);
-    }
-    ctx.restore();
-  }
-
   function glowText(text, x, y) {
     ctx.save();
     ctx.shadowColor = "rgba(255,255,255,.9)";
@@ -529,104 +590,129 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ctx.stroke();
   }
 
+  function write(text, x, y, useGlow) {
+    if (useGlow) glowText(text, x, y); else ctx.fillText(text, x, y);
+  }
+
+  function drawArt(c, z) {
+    const { x, y, w, h } = z.art;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.clip();
+    if (c.art) {
+      const scale = Math.max(w / c.art.naturalWidth, h / c.art.naturalHeight);
+      const iw = c.art.naturalWidth * scale, ih = c.art.naturalHeight * scale;
+      ctx.drawImage(c.art, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
+    } else {
+      const g = ctx.createLinearGradient(0, y, 0, y + h);
+      g.addColorStop(0, "#2a2116");
+      g.addColorStop(1, "#0d0a06");
+      ctx.fillStyle = g;
+      ctx.fillRect(x, y, w, h);
+    }
+    ctx.restore();
+  }
+
   function drawCard(c) {
+    const fr = FRAMES[c.frame];
+    const z = fr.zone;
     const cat = c.pick.cat;
-    const frame = illustration(FRAME_SRC);
-    ctx.clearRect(0, 0, W, H);
-    if (frame.complete && frame.naturalWidth) ctx.drawImage(frame, 0, 0, W, H);
-    drawArt(c);
+    INK = fr.ink;
+    if (canvas.width !== fr.w || canvas.height !== fr.h) {
+      canvas.width = fr.w;
+      canvas.height = fr.h;
+      canvas.style.aspectRatio = `${fr.w} / ${fr.h}`;
+    }
+    const frame = illustration(fr.src);
+    ctx.clearRect(0, 0, fr.w, fr.h);
+    if (!fr.artOnTop) drawArt(c, z);
+    if (frame.complete && frame.naturalWidth) ctx.drawImage(frame, 0, 0, fr.w, fr.h);
+    if (fr.artOnTop) drawArt(c, z);
 
     ctx.fillStyle = INK;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    fitText(c.title, ZONE.title.w, 50, 700, SERIF);
-    glowText(c.title, ZONE.title.x, ZONE.title.cy);
-    costGem(ZONE.cost.cx, ZONE.cost.cy, 28, GEM[c.pick.dlc ? "dlc" : cat], COST[cat]);
+    fitText(c.title, z.title.w, 50, 700, SERIF);
+    write(c.title, z.title.x, z.title.cy, fr.glow);
+    costGem(z.cost.cx, z.cost.cy, z.cost.r, GEM[c.pick.dlc ? "dlc" : cat], COST[cat]);
 
     ctx.fillStyle = INK;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    fitText(SUBTYPE[cat], ZONE.type.w, 40, 700, SERIF);
-    glowText(SUBTYPE[cat], ZONE.type.x, ZONE.type.cy);
-    setSymbol(ZONE.rarity.cx, ZONE.rarity.cy, cat);
+    fitText(SUBTYPE[cat], z.type.w, 40, 700, SERIF);
+    write(SUBTYPE[cat], z.type.x, z.type.cy, fr.glow);
+    setSymbol(z.rarity.cx, z.rarity.cy, cat);
 
-    const t = ZONE.text;
+    const t = z.text;
     ctx.textBaseline = "top";
     ctx.fillStyle = INK;
     fitText(c.pick.name, t.w, 38, 700, BODY);
-    glowText(c.pick.name, t.x, t.y);
-    ctx.strokeStyle = "rgba(14,22,48,.45)";
+    write(c.pick.name, t.x, t.y, fr.glow);
+    ctx.strokeStyle = fr.glow ? "rgba(14,22,48,.45)" : "rgba(26,17,8,.4)";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(t.x, t.y + 56);
     ctx.lineTo(t.x + t.w, t.y + 56);
     ctx.stroke();
     const top = t.y + 74;
-    let size = 33, lines, lh;
+    let size = 32, lines, lh;
     do {
       ctx.font = `italic ${size}px ${BODY}`;
       lh = Math.round(size * 1.3);
       lines = wrapLines(c.loreText, t.w);
       size -= 1;
     } while (lines.length * lh > t.bottom - top && size > 16);
-    lines.forEach((l, i) => glowText(l, t.x, top + i * lh));
+    lines.forEach((l, i) => write(l, t.x, top + i * lh, fr.glow));
 
-    plaque(ZONE.stats);
-    ctx.fillStyle = "#f4f1ff";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = `700 48px ${SERIF}`;
-    ctx.fillText(`${c.atk}/${c.def}`, ZONE.stats.x + ZONE.stats.w / 2, ZONE.stats.y + ZONE.stats.h / 2 + 2);
+    if (z.plaque) {
+      plaque(z.plaque);
+      ctx.fillStyle = "#f4f1ff";
+      ctx.fillText(`${c.atk}/${c.def}`, z.plaque.x + z.plaque.w / 2, z.plaque.y + z.plaque.h / 2 + 2);
+    } else {
+      ctx.fillStyle = INK;
+      ctx.fillText(`${c.atk}/${c.def}`, z.stats.cx, z.stats.cy);
+    }
 
+    const num = `${String(c.number).padStart(3, "0")}/${DATA.length} ${RARITY_STYLE[cat][2]} · FSE · FR${c.frame === "holo" ? " · BRILLANTE" : ""}`;
+    const credit = "Illus. La Forge des Sans-éclat · Projet de fan, non officiel";
     ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = INK;
-    ctx.font = `600 22px ${BODY}`;
-    glowText(`${String(c.number).padStart(3, "0")}/${DATA.length} ${RARITY_STYLE[cat][2]} · FSE · FR  —  Illus. La Forge des Sans-éclat · Projet de fan, non officiel`, ZONE.foot.x, ZONE.foot.y);
+    ctx.fillStyle = fr.foot;
+    if (z.foot.gap) {
+      ctx.textBaseline = "alphabetic";
+      ctx.font = `600 21px ${BODY}`;
+      ctx.fillText(num, z.foot.x, z.foot.y);
+      ctx.font = `italic 20px ${BODY}`;
+      ctx.fillText(credit, z.foot.x, z.foot.y + z.foot.gap);
+    } else {
+      ctx.textBaseline = "middle";
+      ctx.font = `600 18px ${BODY}`;
+      write(`${num}  —  ${credit}`, z.foot.x, z.foot.y, fr.glow);
+    }
   }
 
-  function pickFrom(list) { return list[randomIndex(list.length)]; }
-
-  function loreParts(pick) {
-    return {
-      canon: pickFrom(pick.dlc ? LORE.canonDlc : LORE.canon),
-      caste: pickFrom(LORE.caste),
-      modern: pickFrom(LORE.modern),
-    };
-  }
-
-  function loreText(c, g) {
-    const f = g === "f";
-    const ep = c.ep[f ? 1 : 0];
-    const p = c.lore;
-    return `${p.canon} ${p.caste} ${p.modern}`
-      .replaceAll("{name}", c.display)
-      .replaceAll("{e}", f ? "e" : "")
-      .replaceAll("{Il}", f ? "Elle" : "Il")
-      .replaceAll("{il}", f ? "elle" : "il")
-      .replaceAll("{le}", f ? "la" : "le")
-      .replaceAll("{caste}", c.pick.name)
-      .replaceAll("{ep}", ep)
-      .replaceAll("chez la", "chez elle").replaceAll("chez le", "chez lui")
-      .replaceAll("« ", "«\u00a0")
-      .replaceAll(" »", "\u00a0»");
-  }
-
-  function stats(cat) {
-    const base = { boss: 6, pnj: 3, ennemi: 1 }[cat];
-    return [base + randomIndex(5), base + randomIndex(5)];
+  // ---- Page ----
+  function replay(el) {
+    el.classList.remove("flash");
+    void el.offsetWidth;
+    el.classList.add("flash");
   }
 
   function render() {
     if (!current) return;
-    current.title = titleFor(current.display, current.ep, gender());
-    current.loreText = loreText(current, gender());
-    $("lore").textContent = current.loreText;
+    const g = gender();
+    current.title = titleFor(current.display, current.titleSpec, g);
+    current.loreText = loreText(current, g);
     $("title").textContent = current.title;
     $("caste").textContent = current.pick.name;
+    $("lore").textContent = current.loreText;
     $("tags").replaceChildren(...[
       [LABELS[current.pick.cat], "tag"],
       [current.pick.dlc ? "Shadow of the Erdtree" : "Jeu de base", current.pick.dlc ? "tag dlc" : "tag"],
+      ...(current.frame === "holo" ? [["Carte brillante", "tag holo"]] : []),
     ].map(([text, cls]) => {
       const el = document.createElement("span");
       el.className = cls;
@@ -636,41 +722,38 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     drawCard(current);
   }
 
-  function requestArt(c) {
-    const img = illustration(c.scene);
-    c.art = null;
-    const show = () => {
-      if (current !== c) return;
-      c.art = img;
-      c.artLoading = false;
-      render();
-    };
-    if (img.complete && img.naturalWidth) { show(); return; }
-    c.artLoading = true;
-    img.addEventListener("load", show, { once: true });
-    img.addEventListener("error", () => {
-      if (current !== c) return;
-      c.artLoading = false;
-      render();
-    }, { once: true });
+  function whenLoaded(img, cb) {
+    if (img.complete && img.naturalWidth) cb();
+    else img.addEventListener("load", cb, { once: true });
   }
 
   function forge() {
-    const display = capitalize($("prenom").value) || "Sans-éclat";
-    const pick = drawDifferent(currentPool(), last.pick);
-    const ep = drawDifferent(EPITHETS, last.ep);
-    const scene = drawDifferent(ARTWORKS, last.scene);
+    const display = capitalize($("prenom").value);
+    if (!display) {
+      $("status").textContent = "Entre ton nom pour forger ta carte.";
+      $("prenom").focus();
+      return;
+    }
+    const pick = fresh(currentPool().filter((e) => e !== last.pick));
     last.pick = pick;
-    last.ep = ep;
+    const scene = fresh(ARTWORKS.filter((a) => a !== last.scene));
     last.scene = scene;
     const [atk, def] = stats(pick.cat);
-    current = {
-      display, pick, ep, scene, atk, def,
-      lore: loreParts(pick),
+    const card = {
+      display, pick, scene, atk, def,
+      frame: chance(HOLO_CHANCE) ? "holo" : "gold",
+      titleSpec: makeTitleSpec(),
+      loreSpec: makeLoreSpec(pick),
       number: DATA.indexOf(pick) + 1,
+      art: null,
     };
+    current = card;
     $("status").textContent = "";
-    requestArt(current);
+    $("result").hidden = false;
+    const art = illustration(scene);
+    const frame = illustration(FRAMES[card.frame].src);
+    whenLoaded(art, () => { if (current === card) { card.art = art; render(); } });
+    whenLoaded(frame, () => { if (current === card) render(); });
     render();
     replay($("title"));
     replay($("caste"));
@@ -682,7 +765,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     if (g) $(`genre-${g}`).checked = true;
   });
   $("forge").addEventListener("submit", (e) => { e.preventDefault(); forge(); });
-  document.querySelectorAll('input[name="cat"]').forEach((r) => r.addEventListener("change", forge));
+  document.querySelectorAll('input[name="cat"]').forEach((r) => r.addEventListener("change", () => { if (current) forge(); }));
   document.querySelectorAll('input[name="genre"]').forEach((r) => r.addEventListener("change", render));
 
   $("copy").addEventListener("click", () => {
@@ -703,7 +786,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     $("download").addEventListener("click", () => {
       let url;
       try {
-        url = $("card").toDataURL("image/png");
+        url = canvas.toDataURL("image/png");
       } catch {
         $("status").textContent = "Téléchargement bloqué : fais un clic droit sur la carte, puis « Enregistrer l'image ».";
         return;
@@ -730,8 +813,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     $("codex").append(d);
   });
 
-  forge();
-  illustration(FRAME_SRC).addEventListener("load", render, { once: true });
+  Object.values(FRAMES).forEach((f) => illustration(f.src));
   Promise.all([
     document.fonts.load('700 34px "Cormorant SC"'),
     document.fonts.load("600 21px Spectral"),
