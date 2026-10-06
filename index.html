@@ -275,6 +275,13 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   const FEM = new Set("marie lea emma chloe ines jade louise alice lina rose anna mia julia juliette manon sarah lucie clara zoe eva louna ambre agathe margaux mathilde pauline laura julie sophie nathalie isabelle sandrine valerie celine aurelie emilie elodie stephanie christine catherine sylvie monique francoise nicole anne helene claire charlotte victoria elise lola nina romane oceane marine melanie audrey caroline virginie sabrina karine laetitia amandine morgane justine fanny coralie delphine estelle gaelle yasmine sofia maya lena iris adele capucine apolline josephine margot noemie lou nour fatima aicha myriam sonia leila mariam salome oriane axelle maelle anais cassandre eloise heloise gabrielle jessica jennifer emily olivia sophia isabella ava mila ella grace hannah alix beatrice brigitte chantal colette denise diane elisabeth elizabeth eve florence genevieve ingrid jacqueline jeanne josiane lisa maeva marion martine mireille muriel odile patricia rachel regine sabine severine solene suzanne sylviane therese veronique yvette yvonne zoé lilou lise maud agnes carmen".split(" "));
   const MASC = new Set("pierre philippe jerome baptiste maxime antoine guillaume theophile luca joshua stephane christophe alexandre etienne jeremie emile achille hercule aime rene andre jose elie noe mike steve dave bruce kyle shane wayne jesse moussa issa yahya hamza mustapha mustafa ilya nikita george jean-baptiste jean-marie gilles jacques yves charles lucas matteo mattia andrea".split(" "));
 
+  const ART_HINTS = {
+    boss: "a fearsome legendary lord, imposing silhouette",
+    pnj: "a mysterious wandering figure, hooded traveller",
+    ennemi: "a grim soldier or monstrous creature",
+  };
+  const ART_TIMEOUT = 60000;
+
   const $ = (id) => document.getElementById(id);
   const ctx = $("card").getContext("2d");
   const last = { pick: null, ep: null };
@@ -298,7 +305,11 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     crypto.getRandomValues(buf);
     return buf[0] % length;
   }
-  const rand = () => randomIndex(1e9) / 1e9;
+  let artState = 1;
+  const rand = () => {
+    artState = (Math.imul(artState, 1664525) + 1013904223) >>> 0;
+    return artState / 4294967296;
+  };
 
   function drawDifferent(list, previous) {
     if (list.length < 2) return list[0];
@@ -371,13 +382,30 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ctx.moveTo(x, y);
     ctx.quadraticCurveTo(x + (rand() - .5) * len * .3, (y + y2) / 2, x2, y2);
     ctx.stroke();
-    const n = depth > 6 ? 2 : 2 + randomIndex(2);
+    const n = depth > 6 ? 2 : 2 + Math.floor(rand() * 2);
     for (let i = 0; i < n; i++) {
       branch(x2, y2, len * (.68 + rand() * .14), angle + (rand() - .5) * 1.1, depth - 1, width * .68, color);
     }
   }
 
+  function drawIllustration(img, x, y, w, h) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.clip();
+    const scale = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+    const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
+    ctx.drawImage(img, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
+    const vignette = ctx.createRadialGradient(x + w / 2, y + h / 2, h * .35, x + w / 2, y + h / 2, h * .85);
+    vignette.addColorStop(0, "transparent");
+    vignette.addColorStop(1, "#1a120888");
+    ctx.fillStyle = vignette;
+    ctx.fillRect(x, y, w, h);
+    ctx.restore();
+  }
+
   function drawArt(x, y, w, h, pal) {
+    artState = current.artSeed || 1;
     ctx.save();
     ctx.beginPath();
     ctx.rect(x, y, w, h);
@@ -399,7 +427,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
     ctx.strokeStyle = pal.glow + "55";
     ctx.lineWidth = 2;
-    const rings = 3 + randomIndex(3);
+    const rings = 3 + Math.floor(rand() * 3);
     for (let i = 0; i < rings; i++) {
       ctx.beginPath();
       ctx.arc(cx + (rand() - .5) * 80, cy + (rand() - .5) * 50, 40 + rand() * 110, 0, Math.PI * 2);
@@ -471,7 +499,21 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
     // Illustration
     const artX = 34, artY = 108, artW = W - 68, artH = 400;
-    drawArt(artX, artY, artW, artH, pal);
+    if (c.art) {
+      drawIllustration(c.art, artX, artY, artW, artH);
+    } else {
+      drawArt(artX, artY, artW, artH, pal);
+      if (c.artLoading) {
+        ctx.fillStyle = "#000000aa";
+        ctx.fillRect(artX, artY + artH - 44, artW, 44);
+        ctx.fillStyle = "#e6dcc0";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = 'italic 20px Spectral, Georgia, serif';
+        ctx.fillText("Le copiste enlumine ta carte…", artX + artW / 2, artY + artH - 22);
+        ctx.textAlign = "left";
+      }
+    }
     ctx.strokeStyle = gold + "aa";
     ctx.lineWidth = 2;
     ctx.strokeRect(artX, artY, artW, artH);
@@ -544,6 +586,34 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     drawCard(current);
   }
 
+  function artPrompt(pick) {
+    return [
+      "Medieval illuminated manuscript illustration, ink and gold leaf on aged parchment",
+      "dark fantasy, gothic bestiary page, muted earthy colors, ornate border",
+      ART_HINTS[pick.cat],
+      `named ${pick.name}`,
+      "no text, no letters",
+    ].join(", ");
+  }
+
+  function requestArt(c) {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    const seed = randomIndex(1e6);
+    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(artPrompt(c.pick))}?width=600&height=400&seed=${seed}&nologo=true`;
+    c.artLoading = true;
+    const done = (ok) => {
+      if (current !== c || !c.artLoading) return;
+      c.artLoading = false;
+      if (ok) c.art = img;
+      else $("status").textContent = "Illustration indisponible pour l'instant : la carte garde son motif doré.";
+      render();
+    };
+    img.onload = () => done(true);
+    img.onerror = () => done(false);
+    setTimeout(() => done(false), ART_TIMEOUT);
+  }
+
   function forge() {
     const display = capitalize($("prenom").value) || "Sans-éclat";
     const pick = drawDifferent(currentPool(), last.pick);
@@ -557,6 +627,8 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
       number: DATA.indexOf(pick) + 1,
     };
     $("status").textContent = "";
+    current.artSeed = randomIndex(1e9);
+    requestArt(current);
     render();
     replay($("title"));
     replay($("caste"));
@@ -586,8 +658,15 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   if (!framed) {
     $("download").hidden = false;
     $("download").addEventListener("click", () => {
+      let url;
+      try {
+        url = $("card").toDataURL("image/png");
+      } catch {
+        $("status").textContent = "Téléchargement bloqué par le générateur d'images : fais un clic droit sur la carte, puis « Enregistrer l'image ».";
+        return;
+      }
       const a = document.createElement("a");
-      a.href = $("card").toDataURL("image/png");
+      a.href = url;
       a.download = `${normalize(current.display).replace(/[^a-z0-9]+/g, "-") || "sans-eclat"}-carte.png`;
       a.click();
     });
