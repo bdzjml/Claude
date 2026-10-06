@@ -1,10 +1,10 @@
 # Illustrations des cartes (à générer dans ChatGPT)
 
-Le site utilise automatiquement `art-1.png` à `art-10.png` s'ils sont présents dans ce dossier
-(il suffit d'en avoir un seul pour qu'il remplace les scènes SVG).
+Le site fait tourner `art-1.jpg` à `art-9.jpg` (images générées dans ChatGPT, redimensionnées en 1200 × 800)
+dans le cadre `cadre.webp`. Pour en ajouter, dépose `art-10.jpg`, etc. et augmente la longueur de `ARTWORKS` dans index.html.
 
 Dans ChatGPT, colle un prompt à la fois. Format : **paysage 3:2** (1536 × 1024).
-Télécharge l'image, renomme-la `art-N.png`, puis dépose-la ici.
+Télécharge l'image, renomme-la `art-N.jpg`, puis dépose-la ici.
 
 Début commun à chaque prompt :
 > Dark fantasy medieval oil painting, epic souls-like video game key art, painterly brushwork,

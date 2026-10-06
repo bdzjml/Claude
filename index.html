@@ -135,7 +135,7 @@ button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 @keyframes flash { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
 .card-wrap { display: grid; gap: .5rem; justify-items: center; }
-#card { width: 100%; max-width: 320px; height: auto; aspect-ratio: 63 / 88; border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, .6); }
+#card { width: 100%; max-width: 320px; height: auto; aspect-ratio: 2 / 3; border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, .6); }
 .card-wrap small { color: var(--muted); font-size: .8rem; text-align: center; }
 
 .codex h2 { font-family: var(--display); color: var(--gold); letter-spacing: .1em; font-size: 1.4rem; margin: 0 0 .3rem; }
@@ -193,7 +193,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
       <p class="status" id="status"></p>
     </div>
     <div class="card-wrap">
-      <canvas id="card" width="630" height="880" role="img" aria-label="Carte à collectionner du personnage forgé"></canvas>
+      <canvas id="card" width="1024" height="1536" role="img" aria-label="Carte à collectionner du personnage forgé"></canvas>
       <small id="card-hint">Clic droit ou appui long sur la carte pour l'enregistrer.</small>
     </div>
   </section>
@@ -332,13 +332,8 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   const FEM = new Set("marie lea emma chloe ines jade louise alice lina rose anna mia julia juliette manon sarah lucie clara zoe eva louna ambre agathe margaux mathilde pauline laura julie sophie nathalie isabelle sandrine valerie celine aurelie emilie elodie stephanie christine catherine sylvie monique francoise nicole anne helene claire charlotte victoria elise lola nina romane oceane marine melanie audrey caroline virginie sabrina karine laetitia amandine morgane justine fanny coralie delphine estelle gaelle yasmine sofia maya lena iris adele capucine apolline josephine margot noemie lou nour fatima aicha myriam sonia leila mariam salome oriane axelle maelle anais cassandre eloise heloise gabrielle jessica jennifer emily olivia sophia isabella ava mila ella grace hannah alix beatrice brigitte chantal colette denise diane elisabeth elizabeth eve florence genevieve ingrid jacqueline jeanne josiane lisa maeva marion martine mireille muriel odile patricia rachel regine sabine severine solene suzanne sylviane therese veronique yvette yvonne zoé lilou lise maud agnes carmen".split(" "));
   const MASC = new Set("pierre philippe jerome baptiste maxime antoine guillaume theophile luca joshua stephane christophe alexandre etienne jeremie emile achille hercule aime rene andre jose elie noe mike steve dave bruce kyle shane wayne jesse moussa issa yahya hamza mustapha mustafa ilya nikita george jean-baptiste jean-marie gilles jacques yves charles lucas matteo mattia andrea".split(" "));
 
-  const SCENES = [
-    "01-plaine-arbre", "02-soldats", "03-dragon", "04-mage-lune", "05-chevalier-cheval",
-    "06-duel", "07-caelid", "08-chateau-orage", "09-site-de-grace", "10-montagnes",
-  ].map((n) => `illustrations/${n}.svg`);
-  // Illustrations art-1.png à art-10.png (générées hors du site) : prioritaires quand elles existent
-  const ARTWORKS = Array.from({ length: 10 }, (_, i) => `illustrations/art-${i + 1}.png`);
-  let artPool = SCENES;
+  const ARTWORKS = Array.from({ length: 9 }, (_, i) => `illustrations/art-${i + 1}.jpg`);
+  const FRAME_SRC = "illustrations/cadre.webp";
 
   const ILLUSTRATIONS = new Map();
   function illustration(src) {
@@ -400,72 +395,29 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     el.classList.add("flash");
   }
 
-  // ---- Carte ----
-  const W = 630, H = 880;
-  const INK = "#140d06";
+  // ---- Carte : cadre illustrations/cadre.webp (1024 × 1536), zones mesurées sur le cadre ----
+  const W = 1024, H = 1536;
+  const INK = "#1a1108";
   const SERIF = '"Cormorant SC", Georgia, serif';
-  const FRAMES = {
-    boss: { light: "#ecd08a", mid: "#a8742c", dark: "#3e250c", gem: "#c0392b" },
-    pnj: { light: "#c4d6e8", mid: "#5f7f9e", dark: "#1a2a3b", gem: "#3f7cc0" },
-    ennemi: { light: "#d2cbbb", mid: "#7a705f", dark: "#28231c", gem: "#5f6b4a" },
-    dlc: { light: "#f3bd92", mid: "#a4492b", dark: "#35130a", gem: "#e0662f" },
+  const BODY = "Spectral, Georgia, serif";
+  const ZONE = {
+    art: { x: 92, y: 205, w: 840, h: 557 },
+    title: { x: 140, cy: 132, w: 680 },
+    cost: { cx: 887, cy: 134 },
+    type: { x: 155, cy: 831, w: 660 },
+    rarity: { cx: 887, cy: 831 },
+    text: { x: 145, y: 930, w: 740, bottom: 1318 },
+    stats: { cx: 856, cy: 1393 },
+    foot: { x: 140, y: 1428 },
   };
+  const GEM = { boss: "#c0392b", pnj: "#3f7cc0", ennemi: "#5f6b4a", dlc: "#e0662f" };
   const COST = { boss: 3, pnj: 2, ennemi: 1 };
   const SUBTYPE = { boss: "Créature légendaire — Boss", pnj: "Créature — PNJ", ennemi: "Créature — Ennemi" };
   const RARITY_STYLE = { boss: ["#ffb347", "#a4380f", "L"], pnj: ["#f1dc9c", "#8a6a1e", "R"], ennemi: ["#4a4a4a", "#0a0a0a", "C"] };
-  const PARCHMENT = ["#f5eedb", "#ddcfac", "#c8b78e"];
-
-  function roundRect(x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-  }
-
-  let grain = null;
-  function grainPattern() {
-    if (grain) return grain;
-    const c = document.createElement("canvas");
-    c.width = c.height = 128;
-    const g = c.getContext("2d");
-    const img = g.createImageData(128, 128);
-    for (let i = 0; i < img.data.length; i += 4) {
-      const v = Math.random() * 255;
-      img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
-      img.data[i + 3] = 26;
-    }
-    g.putImageData(img, 0, 0);
-    grain = ctx.createPattern(c, "repeat");
-    return grain;
-  }
-
-  function vgrad(y0, y1, stops) {
-    const g = ctx.createLinearGradient(0, y0, 0, y1);
-    stops.forEach((color, i) => g.addColorStop(i / (stops.length - 1), color));
-    return g;
-  }
-
-  function panel(x, y, w, h, r, fill) {
-    roundRect(x, y, w, h, r);
-    ctx.fillStyle = fill;
-    ctx.fill();
-    ctx.fillStyle = grainPattern();
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = INK;
-    ctx.stroke();
-    roundRect(x + 3, y + 3, w - 6, h - 6, Math.max(r - 3, 1));
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = "rgba(255,255,255,.5)";
-    ctx.stroke();
-  }
 
   function fitText(text, maxWidth, size, weight, family) {
     let s = size;
-    do { ctx.font = `${weight} ${s}px ${family}`; s -= 1; } while (ctx.measureText(text).width > maxWidth && s > 12);
+    do { ctx.font = `${weight} ${s}px ${family}`; s -= 1; } while (ctx.measureText(text).width > maxWidth && s > 14);
   }
 
   function wrapLines(text, maxWidth) {
@@ -479,7 +431,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     return lines;
   }
 
-  function gem(cx, cy, r, color) {
+  function costGem(cx, cy, r, color, value) {
     const g = ctx.createRadialGradient(cx - r * .35, cy - r * .4, r * .1, cx, cy, r);
     g.addColorStop(0, "#fff8e0");
     g.addColorStop(.3, color);
@@ -488,44 +440,41 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.fillStyle = g;
     ctx.fill();
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.strokeStyle = INK;
     ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(cx, cy, r * .42, 0, Math.PI * 2);
-    ctx.moveTo(cx, cy - r * .72);
-    ctx.lineTo(cx, cy + r * .72);
-    ctx.lineWidth = 1.8;
-    ctx.strokeStyle = "rgba(255,240,205,.9)";
-    ctx.stroke();
+    ctx.fillStyle = "#fff4d6";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `700 34px ${SERIF}`;
+    ctx.fillText(String(value), cx, cy + 2);
   }
 
   function setSymbol(cx, cy, cat) {
     const [top, bottom] = RARITY_STYLE[cat];
-    const g = ctx.createLinearGradient(cx, cy - 16, cx, cy + 16);
+    const g = ctx.createLinearGradient(cx, cy - 26, cx, cy + 26);
     g.addColorStop(0, top);
     g.addColorStop(1, bottom);
     const path = () => {
       ctx.beginPath();
-      ctx.arc(cx, cy + 2, 11, 0, Math.PI * 2);
-      ctx.moveTo(cx, cy - 17);
-      ctx.lineTo(cx, cy + 19);
-      ctx.moveTo(cx - 9, cy - 6);
-      ctx.arc(cx, cy - 6, 9, Math.PI, 0);
+      ctx.arc(cx, cy + 3, 17, 0, Math.PI * 2);
+      ctx.moveTo(cx, cy - 27);
+      ctx.lineTo(cx, cy + 30);
+      ctx.moveTo(cx - 14, cy - 9);
+      ctx.arc(cx, cy - 9, 14, Math.PI, 0);
     };
     path();
-    ctx.lineWidth = 7;
+    ctx.lineWidth = 10;
     ctx.strokeStyle = INK;
     ctx.stroke();
     path();
-    ctx.lineWidth = 3.5;
+    ctx.lineWidth = 5;
     ctx.strokeStyle = g;
     ctx.stroke();
   }
 
-  function drawArtWindow(c, x, y, w, h) {
-    ctx.fillStyle = INK;
-    ctx.fillRect(x - 4, y - 4, w + 8, h + 8);
+  function drawArt(c) {
+    const { x, y, w, h } = ZONE.art;
     ctx.save();
     ctx.beginPath();
     ctx.rect(x, y, w, h);
@@ -533,120 +482,78 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     if (c.art) {
       const scale = Math.max(w / c.art.naturalWidth, h / c.art.naturalHeight);
       const iw = c.art.naturalWidth * scale, ih = c.art.naturalHeight * scale;
-      ctx.drawImage(c.art, x + (w - iw) / 2, y + (h - ih) * .3, iw, ih);
+      ctx.drawImage(c.art, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
     } else {
-      ctx.fillStyle = vgrad(y, y + h, ["#2a2116", "#0d0a06"]);
+      const g = ctx.createLinearGradient(0, y, 0, y + h);
+      g.addColorStop(0, "#2a2116");
+      g.addColorStop(1, "#0d0a06");
+      ctx.fillStyle = g;
       ctx.fillRect(x, y, w, h);
-      if (c.artLoading) {
-        ctx.fillStyle = "#b9a77e";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.font = "italic 20px Spectral, Georgia, serif";
-        ctx.fillText("L'enluminure arrive…", x + w / 2, y + h / 2);
-        ctx.textAlign = "left";
-      }
+      ctx.fillStyle = "#b9a77e";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `italic 32px ${BODY}`;
+      ctx.fillText("L'enluminure arrive…", x + w / 2, y + h / 2);
     }
-    const shade = ctx.createLinearGradient(0, y, 0, y + 30);
-    shade.addColorStop(0, "rgba(0,0,0,.45)");
-    shade.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = shade;
-    ctx.fillRect(x, y, w, 30);
     ctx.restore();
   }
 
   function drawCard(c) {
     const cat = c.pick.cat;
-    const f = FRAMES[c.pick.dlc ? "dlc" : cat];
+    const frame = illustration(FRAME_SRC);
     ctx.clearRect(0, 0, W, H);
+    drawArt(c);
+    if (frame.complete && frame.naturalWidth) {
+      ctx.drawImage(frame, 0, 0, W, H);
+    }
 
-    // Bordure noire
-    roundRect(0, 0, W, H, 30);
-    ctx.fillStyle = "#0b0907";
-    ctx.fill();
-
-    // Cadre métallique
-    roundRect(20, 20, W - 40, H - 64, 18);
-    const metal = ctx.createLinearGradient(20, 20, W - 20, H - 44);
-    metal.addColorStop(0, f.light);
-    metal.addColorStop(.4, f.mid);
-    metal.addColorStop(.7, f.light);
-    metal.addColorStop(1, f.dark);
-    ctx.fillStyle = metal;
-    ctx.fill();
-    ctx.fillStyle = grainPattern();
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = INK;
-    ctx.stroke();
-
-    // Barre de titre + coût
-    panel(34, 34, W - 68, 54, 16, vgrad(34, 88, PARCHMENT));
-    const cost = COST[cat];
-    for (let i = 0; i < cost; i++) gem(W - 64 - i * 34, 61, 14, f.gem);
     ctx.fillStyle = INK;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    fitText(c.title, W - 68 - 40 - cost * 34 - 8, 30, 700, SERIF);
-    ctx.fillText(c.title, 52, 62);
+    fitText(c.title, ZONE.title.w, 50, 700, SERIF);
+    ctx.fillText(c.title, ZONE.title.x, ZONE.title.cy);
+    costGem(ZONE.cost.cx, ZONE.cost.cy, 32, GEM[c.pick.dlc ? "dlc" : cat], COST[cat]);
 
-    // Illustration
-    drawArtWindow(c, 48, 98, W - 96, 388);
-
-    // Ligne de type + symbole d'extension
-    panel(34, 494, W - 68, 46, 14, vgrad(494, 540, PARCHMENT));
     ctx.fillStyle = INK;
-    fitText(SUBTYPE[cat], W - 160, 24, 700, SERIF);
-    ctx.fillText(SUBTYPE[cat], 52, 518);
-    setSymbol(W - 66, 517, cat);
+    ctx.textAlign = "left";
+    fitText(SUBTYPE[cat], ZONE.type.w, 40, 700, SERIF);
+    ctx.fillText(SUBTYPE[cat], ZONE.type.x, ZONE.type.cy);
+    setSymbol(ZONE.rarity.cx, ZONE.rarity.cy, cat);
 
-    // Encart de texte
-    roundRect(48, 548, W - 96, 236, 6);
-    ctx.fillStyle = vgrad(548, 784, ["#f3ebd6", "#e2d4b2"]);
-    ctx.fill();
-    ctx.fillStyle = grainPattern();
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = INK;
-    ctx.stroke();
-
+    const t = ZONE.text;
     ctx.textBaseline = "top";
     ctx.fillStyle = INK;
-    fitText(c.pick.name, W - 130, 22, 700, "Spectral, Georgia, serif");
-    ctx.fillText(c.pick.name, 66, 562);
-    ctx.strokeStyle = "rgba(20,13,6,.35)";
-    ctx.lineWidth = 1;
+    fitText(c.pick.name, t.w, 36, 700, BODY);
+    ctx.fillText(c.pick.name, t.x, t.y);
+    ctx.strokeStyle = "rgba(26,17,8,.4)";
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(66, 594);
-    ctx.lineTo(W - 66, 594);
+    ctx.moveTo(t.x, t.y + 54);
+    ctx.lineTo(t.x + t.w, t.y + 54);
     ctx.stroke();
-    let size = 19, lines, lh;
+    const top = t.y + 72;
+    let size = 31, lines, lh;
     do {
-      ctx.font = `italic ${size}px Spectral, Georgia, serif`;
-      lh = Math.round(size * 1.32);
-      lines = wrapLines(c.loreText, W - 132);
+      ctx.font = `italic ${size}px ${BODY}`;
+      lh = Math.round(size * 1.3);
+      lines = wrapLines(c.loreText, t.w);
       size -= 1;
-    } while (lines.length * lh > 168 && size > 12);
-    lines.forEach((l, i) => ctx.fillText(l, 66, 604 + i * lh));
+    } while (lines.length * lh > t.bottom - top && size > 16);
+    lines.forEach((l, i) => ctx.fillText(l, t.x, top + i * lh));
 
-    // Force / endurance
-    panel(W - 166, 760, 128, 52, 14, vgrad(760, 812, [f.light, f.mid]));
     ctx.fillStyle = INK;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = `700 32px ${SERIF}`;
-    ctx.fillText(`${c.atk}/${c.def}`, W - 102, 787);
+    ctx.font = `700 46px ${SERIF}`;
+    ctx.fillText(`${c.atk}/${c.def}`, ZONE.stats.cx, ZONE.stats.cy);
 
-    // Mentions en pied de carte
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = "#e9e1cd";
-    ctx.font = "600 13px Spectral, Georgia, serif";
-    ctx.fillText(`${String(c.number).padStart(3, "0")}/${DATA.length} ${RARITY_STYLE[cat][2]} · FSE · FR`, 40, 846);
-    ctx.font = "italic 13px Spectral, Georgia, serif";
-    ctx.fillText("Illus. La Forge des Sans-éclat", 40, 864);
-    ctx.textAlign = "right";
-    ctx.fillText("Projet de fan, non officiel", W - 40, 864);
-    ctx.textAlign = "left";
+    ctx.fillStyle = "#e3d8bd";
+    ctx.font = `600 21px ${BODY}`;
+    ctx.fillText(`${String(c.number).padStart(3, "0")}/${DATA.length} ${RARITY_STYLE[cat][2]} · FSE · FR`, ZONE.foot.x, ZONE.foot.y);
+    ctx.font = `italic 20px ${BODY}`;
+    ctx.fillText("Illus. La Forge des Sans-éclat · Projet de fan, non officiel", ZONE.foot.x, ZONE.foot.y + 28);
   }
 
   function pickFrom(list) { return list[randomIndex(list.length)]; }
@@ -723,7 +630,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     const display = capitalize($("prenom").value) || "Sans-éclat";
     const pick = drawDifferent(currentPool(), last.pick);
     const ep = drawDifferent(EPITHETS, last.ep);
-    const scene = drawDifferent(artPool, last.scene);
+    const scene = drawDifferent(ARTWORKS, last.scene);
     last.pick = pick;
     last.ep = ep;
     last.scene = scene;
@@ -795,14 +702,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   });
 
   forge();
-  Promise.all(ARTWORKS.map((src) => new Promise((done) => {
-    const img = illustration(src);
-    img.addEventListener("load", () => done(src), { once: true });
-    img.addEventListener("error", () => done(null), { once: true });
-  }))).then((found) => {
-    const artworks = found.filter(Boolean);
-    if (artworks.length) artPool = artworks;
-  });
+  illustration(FRAME_SRC).addEventListener("load", render, { once: true });
   Promise.all([
     document.fonts.load('700 34px "Cormorant SC"'),
     document.fonts.load("600 21px Spectral"),
