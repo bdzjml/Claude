@@ -65,6 +65,7 @@ input[type="text"] {
   border: 1px solid var(--line);
   border-radius: 2px;
 }
+input[type="text"]::placeholder { color: var(--muted); font-style: italic; opacity: 1; }
 input[type="text"]:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 button {
   font-family: var(--display);
@@ -139,7 +140,11 @@ button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 .tag.dlc { border-color: var(--rot); color: var(--rot); }
 .forged { display: grid; gap: .2rem; }
 .forged small { font-family: var(--display); letter-spacing: .15em; color: var(--muted); }
-.forged strong { font-family: var(--display); font-weight: 700; font-size: clamp(1.5rem, 5vw, 2.1rem); color: var(--gold); line-height: 1.15; overflow-wrap: anywhere; }
+.forged strong { font-family: var(--display); font-weight: 700; font-size: clamp(1.9rem, 6.5vw, 2.8rem); color: var(--gold); line-height: 1.1; overflow-wrap: anywhere; text-wrap: balance; }
+.caste { display: grid; gap: .8rem; }
+.caste > small { font-family: var(--display); letter-spacing: .15em; color: var(--muted); }
+.forged strong.flash, .bossbar .name.flash { animation: flash 500ms ease-out; }
+@keyframes flash { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .actions { display: flex; gap: .6rem; flex-wrap: wrap; }
 .status { min-height: 1.4em; margin: 0; color: var(--muted); font-size: .9rem; }
 
@@ -150,23 +155,22 @@ summary { cursor: pointer; font-family: var(--display); font-size: 1.1rem; lette
 summary span { color: var(--muted); font-family: var(--body); font-size: .9rem; font-variant-numeric: tabular-nums; }
 details ul { columns: 2 14rem; column-gap: 1.5rem; padding: 0; margin: .8rem 0 0; list-style: none; font-size: .95rem; }
 details li { break-inside: avoid; padding-block: .1rem; color: var(--fg); }
-details li.dlc::after { content: " · extension"; color: var(--rot); font-size: .75rem; letter-spacing: .1em; }
 footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
-@media (prefers-reduced-motion: reduce) { .bar i { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .bar i, .flash { animation: none !important; } }
 </style>
 
 <main>
   <header>
-    <div class="eyebrow">Entre les Terres Intermédiaires</div>
+    <div class="eyebrow">L'Entre-terre</div>
     <h1>La Forge des Sans-éclat</h1>
-    <p>Ton prénom, ton destin. Même prénom, même sentence.</p>
+    <p>Entre ton nom, frappe l'enclume. Chaque coup forge un destin différent.</p>
   </header>
 
   <form id="forge" autocomplete="off">
-    <label for="prenom">Ton prénom, Sans-éclat</label>
+    <label for="prenom">Ton nom, Sans-éclat</label>
     <div class="row">
-      <input id="prenom" type="text" maxlength="40" value="Camille" required>
+      <input id="prenom" type="text" maxlength="40" placeholder="Entrez votre nom">
       <button type="submit">Forger</button>
     </div>
     <fieldset class="filters">
@@ -175,22 +179,24 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
       <label class="chip"><input type="radio" name="cat" id="cat-boss" value="boss"><span>Boss</span></label>
       <label class="chip"><input type="radio" name="cat" id="cat-pnj" value="pnj"><span>PNJ</span></label>
       <label class="chip"><input type="radio" name="cat" id="cat-ennemi" value="ennemi"><span>Ennemis</span></label>
+      <label class="chip"><input type="radio" name="cat" id="cat-dlc" value="dlc"><span>Shadow of the Erdtree</span></label>
     </fieldset>
   </form>
 
   <section class="result" aria-live="polite">
-    <p class="who" id="who"></p>
-    <div class="bossbar">
-      <p class="name" id="name"></p>
-      <div class="bar"><i id="bar"></i></div>
-    </div>
-    <div class="tags" id="tags"></div>
     <div class="forged">
       <small>Ton titre forgé</small>
       <strong id="title"></strong>
     </div>
+    <div class="caste">
+      <small>Ta caste dans l'Entre-terre</small>
+      <div class="bossbar">
+        <p class="name" id="name"></p>
+        <div class="bar"><i id="bar"></i></div>
+      </div>
+      <div class="tags" id="tags"></div>
+    </div>
     <div class="actions">
-      <button type="button" class="ghost" id="reroll">Autre destin</button>
       <button type="button" class="ghost" id="copy">Copier</button>
     </div>
     <p class="status" id="status"></p>
@@ -210,7 +216,12 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 (() => {
   const DATA = window.ER_DATA;
   const LABELS = { boss: "Boss", pnj: "PNJ", ennemi: "Ennemi" };
-  const PLURAL = { boss: "Boss", pnj: "PNJ", ennemi: "Ennemis" };
+  const SECTIONS = [
+    ["Boss", (e) => e.cat === "boss" && !e.dlc],
+    ["PNJ", (e) => e.cat === "pnj" && !e.dlc],
+    ["Ennemis", (e) => e.cat === "ennemi" && !e.dlc],
+    ["Shadow of the Erdtree", (e) => e.dlc],
+  ];
 
   const EPITHETS = [...new Set(
     DATA.filter((e) => e.cat !== "ennemi").flatMap((e) => {
@@ -222,61 +233,68 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   )].map((s) => JSON.parse(s));
 
   const $ = (id) => document.getElementById(id);
-  let salt = 0;
+  const last = { pick: null, ep: null };
 
-  const normalize = (s) => s.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ");
   const capitalize = (s) => s.trim().replace(/\s+/g, " ").replace(/(^|[\s-])(\p{L})/gu, (_, a, b) => a + b.toUpperCase());
 
-  function hash(str) {
-    let h = 0x811c9dc5;
-    for (let i = 0; i < str.length; i++) {
-      h ^= str.charCodeAt(i);
-      h = Math.imul(h, 0x01000193);
-    }
-    return h >>> 0;
+  function randomIndex(length) {
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return buf[0] % length;
   }
 
-  function currentCat() {
-    return document.querySelector('input[name="cat"]:checked').value;
+  function drawDifferent(list, previous) {
+    if (list.length < 2) return list[0];
+    let item;
+    do { item = list[randomIndex(list.length)]; } while (item === previous);
+    return item;
+  }
+
+  function currentPool() {
+    const cat = document.querySelector('input[name="cat"]:checked').value;
+    if (cat === "all") return DATA;
+    if (cat === "dlc") return DATA.filter((e) => e.dlc);
+    return DATA.filter((e) => e.cat === cat);
+  }
+
+  function replay(el, cls) {
+    el.classList.remove(cls);
+    void el.offsetWidth;
+    el.classList.add(cls);
   }
 
   function forge() {
-    const raw = $("prenom").value;
-    const key = normalize(raw);
-    if (!key) {
-      $("status").textContent = "Entre un prénom pour forger ton nom.";
-      return;
-    }
-    const cat = currentCat();
-    const pool = cat === "all" ? DATA : DATA.filter((e) => e.cat === cat);
-    const pick = pool[hash(`${key}|${cat}|${salt}`) % pool.length];
-    const ep = EPITHETS[hash(`${key}|ep|${salt}`) % EPITHETS.length];
-    const display = capitalize(raw);
+    const display = capitalize($("prenom").value) || "Sans-éclat";
+    const pick = drawDifferent(currentPool(), last.pick);
+    const ep = drawDifferent(EPITHETS, last.ep);
+    last.pick = pick;
+    last.ep = ep;
 
-    $("who").textContent = `${display}, dans l'Entre-terre, tu es…`;
-    $("name").textContent = pick.name;
-    $("tags").innerHTML = "";
-    const tags = [LABELS[pick.cat], pick.dlc ? "Shadow of the Erdtree" : "Jeu de base"];
-    tags.forEach((t, i) => {
-      const el = document.createElement("span");
-      el.className = "tag" + (i === 1 && pick.dlc ? " dlc" : "");
-      el.textContent = t;
-      $("tags").append(el);
-    });
     $("title").textContent = display + ep.sep + ep.text;
+    $("name").textContent = pick.name;
+    $("tags").replaceChildren(...[
+      [LABELS[pick.cat], "tag"],
+      [pick.dlc ? "Shadow of the Erdtree" : "Jeu de base", pick.dlc ? "tag dlc" : "tag"],
+    ].map(([text, cls]) => {
+      const el = document.createElement("span");
+      el.className = cls;
+      el.textContent = text;
+      return el;
+    }));
     $("status").textContent = "";
 
+    replay($("title"), "flash");
+    replay($("name"), "flash");
     const bar = $("bar");
     bar.style.animation = "none";
     void bar.offsetWidth;
     bar.style.animation = "";
   }
 
-  $("forge").addEventListener("submit", (e) => { e.preventDefault(); salt = 0; forge(); });
-  document.querySelectorAll('input[name="cat"]').forEach((r) => r.addEventListener("change", () => { salt = 0; forge(); }));
-  $("reroll").addEventListener("click", () => { salt++; forge(); });
+  $("forge").addEventListener("submit", (e) => { e.preventDefault(); forge(); });
+  document.querySelectorAll('input[name="cat"]').forEach((r) => r.addEventListener("change", forge));
   $("copy").addEventListener("click", () => {
-    const text = `${$("name").textContent} — ${$("title").textContent}`;
+    const text = `${$("title").textContent} — ${$("name").textContent}`;
     navigator.clipboard.writeText(text)
       .then(() => { $("status").textContent = "Copié."; })
       .catch(() => {
@@ -287,16 +305,15 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
       });
   });
 
-  $("codex-count").textContent = `${DATA.length} noms répertoriés, dont ${DATA.filter((e) => e.dlc).length} issus du DLC.`;
-  ["boss", "pnj", "ennemi"].forEach((cat) => {
-    const list = DATA.filter((e) => e.cat === cat).sort((a, b) => a.name.localeCompare(b.name));
+  $("codex-count").textContent = `${DATA.length} noms répertoriés, dont ${DATA.filter((e) => e.dlc).length} issus de Shadow of the Erdtree.`;
+  SECTIONS.forEach(([label, test]) => {
+    const list = DATA.filter(test).sort((a, b) => a.name.localeCompare(b.name, "fr"));
     const d = document.createElement("details");
-    d.innerHTML = `<summary>${PLURAL[cat]} <span>(${list.length})</span></summary>`;
+    d.innerHTML = `<summary>${label} <span>(${list.length})</span></summary>`;
     const ul = document.createElement("ul");
     list.forEach((e) => {
       const li = document.createElement("li");
-      li.textContent = e.name;
-      if (e.dlc) li.className = "dlc";
+      li.textContent = e.dlc ? `${e.name} · ${LABELS[e.cat]}` : e.name;
       ul.append(li);
     });
     d.append(ul);
