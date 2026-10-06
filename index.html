@@ -336,8 +336,8 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     "01-plaine-arbre", "02-soldats", "03-dragon", "04-mage-lune", "05-chevalier-cheval",
     "06-duel", "07-caelid", "08-chateau-orage", "09-site-de-grace", "10-montagnes",
   ].map((n) => `illustrations/${n}.svg`);
-  // Illustrations Meshy déposées dans illustrations/ : prioritaires quand elles existent
-  const MESHY = [1, 2, 3, 4, 5].map((n) => `illustrations/meshy-${n}.png`);
+  // Illustrations art-1.png à art-10.png (générées hors du site) : prioritaires quand elles existent
+  const ARTWORKS = Array.from({ length: 10 }, (_, i) => `illustrations/art-${i + 1}.png`);
   let artPool = SCENES;
 
   const ILLUSTRATIONS = new Map();
@@ -795,13 +795,13 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   });
 
   forge();
-  Promise.all(MESHY.map((src) => new Promise((done) => {
+  Promise.all(ARTWORKS.map((src) => new Promise((done) => {
     const img = illustration(src);
     img.addEventListener("load", () => done(src), { once: true });
     img.addEventListener("error", () => done(null), { once: true });
   }))).then((found) => {
-    const meshy = found.filter(Boolean);
-    if (meshy.length) artPool = meshy;
+    const artworks = found.filter(Boolean);
+    if (artworks.length) artPool = artworks;
   });
   Promise.all([
     document.fonts.load('700 34px "Cormorant SC"'),
