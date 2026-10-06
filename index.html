@@ -191,12 +191,12 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
       <p class="lore" id="lore"></p>
       <div class="actions">
         <button type="button" class="ghost" id="copy">Copier</button>
-        <button type="button" class="ghost" id="download" hidden>Télécharger la carte</button>
       </div>
     </div>
     <div class="card-wrap">
       <canvas id="card" width="1024" height="1536" role="img" aria-label="Carte à collectionner du personnage forgé"></canvas>
-      <small id="card-hint">Clic droit ou appui long sur la carte pour l'enregistrer.</small>
+      <button type="button" id="download">Télécharger la carte</button>
+      <small id="card-hint" hidden>Clic droit ou appui long sur la carte pour l'enregistrer.</small>
     </div>
   </section>
 
@@ -389,48 +389,46 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
   const gender = () => document.querySelector('input[name="genre"]:checked').value;
 
-  // ---- Titres forgés : 8 structures, jamais la même deux fois de suite ----
-  const TITLE_PATTERNS = ["honMark", "role", "deed", "honRole", "place", "numeral", "markRole", "canon"];
+  // ---- Titres forgés : uniquement des titres, épithètes et lieux du lore, 6 structures ----
+  const TITLE_PATTERNS = ["epithet", "honPlace", "honEpithet", "placeEpithet", "hon", "tarnished"];
 
-  function makeTitleSpec() {
+  function makeTitleSpec(pick) {
+    const hons = pick.dlc && chance(0.5) ? T.dlcHonorifics : T.honorifics;
+    const places = pick.dlc && chance(0.5) ? T.dlcPlaces : T.places;
     for (let attempt = 0; attempt < 12; attempt++) {
       const pattern = fresh(TITLE_PATTERNS.filter((p) => p !== last.pattern));
       const spec = { pattern };
-      if (pattern.startsWith("hon")) spec.hon = fresh(T.honorifics);
-      if (pattern === "role" || pattern === "honRole" || pattern === "markRole") spec.role = fresh(T.roles);
-      if (pattern === "honMark" || pattern === "markRole") spec.mark = fresh(T.marks);
-      if (pattern === "deed") spec.deed = fresh(T.deeds);
-      if (pattern === "place" || pattern === "numeral") spec.place = fresh(T.places);
-      if (pattern === "numeral") spec.numeral = fresh(T.numerals);
-      if (pattern === "canon") spec.ep = fresh(EPITHETS);
+      if (pattern.startsWith("hon")) spec.hon = fresh(hons);
+      if (pattern === "honPlace" || pattern === "placeEpithet" || pattern === "tarnished") spec.place = fresh(places);
+      if (pattern === "epithet" || pattern === "honEpithet" || pattern === "placeEpithet") spec.ep = fresh(EPITHETS);
       const longest = Math.max(titleFor("Maximilienne", spec, "m").length, titleFor("Maximilienne", spec, "f").length);
-      if (longest <= 50) { last.pattern = pattern; return spec; }
+      const echo = spec.hon && spec.ep && [0, 1].some((f) => spec.ep[f].includes(spec.hon[f].split(" ")[0]));
+      if (longest <= 48 && !echo) { last.pattern = pattern; return spec; }
     }
-    return { pattern: "deed", deed: fresh(T.deeds) };
+    return { pattern: "epithet", ep: fresh(EPITHETS) };
+  }
+
+  function withEpithet(base, ep, bare) {
+    return bare && /^(le |la |l')/.test(ep) ? `${base} ${ep}` : `${base}, ${ep}`;
   }
 
   function titleFor(name, spec, g) {
     const f = g === "f" ? 1 : 0;
     switch (spec.pattern) {
-      case "honMark": return `${spec.hon[f]} ${name} ${spec.mark}`;
-      case "role": return `${name}, ${spec.role[f]}`;
-      case "deed": return `${name} ${spec.deed}`;
-      case "honRole": return `${spec.hon[f]} ${name}, ${spec.role[f]}`;
-      case "place": return `${name} ${spec.place}`;
-      case "numeral": return `${name} ${spec.numeral} ${spec.place}`;
-      case "markRole": return `${name} ${spec.mark}, ${spec.role[f]}`;
-      default: {
-        const ep = spec.ep[f];
-        return /^(le |la |l')/.test(ep) ? `${name} ${ep}` : `${name}, ${ep}`;
-      }
+      case "honPlace": return `${spec.hon[f]} ${name} ${spec.place}`;
+      case "honEpithet": return withEpithet(`${spec.hon[f]} ${name}`, spec.ep[f]);
+      case "placeEpithet": return withEpithet(`${name} ${spec.place}`, spec.ep[f]);
+      case "hon": return `${spec.hon[f]} ${name}`;
+      case "tarnished": return `${name}, Sans-éclat ${spec.place}`;
+      default: return withEpithet(name, spec.ep[f], true);
     }
   }
 
   function surnomFor(spec, g) {
     const f = g === "f" ? 1 : 0;
-    if (spec.role) return spec.role[f];
     if (spec.ep) return spec.ep[f];
-    return spec.mark || spec.deed || (spec.numeral ? `${spec.numeral} ${spec.place}` : spec.place);
+    if (spec.hon) return spec.place ? `${spec.hon[f]} ${spec.place}` : spec.hon[f];
+    return `Sans-éclat ${spec.place}`;
   }
 
   // ---- Descriptions : 6 formes, matière jamais reprise d'une carte récente ----
@@ -742,7 +740,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     const card = {
       display, pick, scene, atk, def,
       frame: chance(HOLO_CHANCE) ? "holo" : "gold",
-      titleSpec: makeTitleSpec(),
+      titleSpec: makeTitleSpec(pick),
       loreSpec: makeLoreSpec(pick),
       number: DATA.indexOf(pick) + 1,
       art: null,
@@ -781,8 +779,10 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   });
 
   const framed = (() => { try { return window.self !== window.top; } catch { return true; } })();
-  if (!framed) {
-    $("download").hidden = false;
+  if (framed) {
+    $("download").hidden = true;
+    $("card-hint").hidden = false;
+  } else {
     $("download").addEventListener("click", () => {
       let url;
       try {

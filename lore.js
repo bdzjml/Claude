@@ -4,45 +4,26 @@
 // {caste} personnage tiré, {title} titre forgé complet, {surnom} partie descriptive du titre.
 
 window.ER_TITLES = {
+  // Titres portés par des personnages du jeu (Chevalier limier Darriwil, Doigt sanglant Nerijus, Castellan Edgar…)
   honorifics: [
-    ["Sire", "Dame"], ["Archiviste", "Archiviste"], ["Veilleur", "Veilleuse"], ["Margrave", "Margravine"],
-    ["Hérault", "Hérault"], ["Frère", "Sœur"], ["Haut Prêtre", "Haute Prêtresse"], ["Pèlerin", "Pèlerine"],
-    ["Arpenteur", "Arpenteuse"], ["Prévôt", "Prévôte"], ["Capitaine", "Capitaine"], ["Ancien", "Ancienne"],
-    ["Chevalier errant", "Chevalière errante"], ["Maître d'armes", "Maîtresse d'armes"], ["Écuyer", "Écuyère"],
+    ["Sir", "Dame"], ["Chevalier limier", "Chevalière limier"], ["Chevalier du Creuset", "Chevalière du Creuset"],
+    ["Chevalier banni", "Chevalière bannie"], ["Chevalier royal", "Chevalière royale"], ["Chevalier carien", "Chevalière carienne"],
+    ["Mage de guerre", "Mage de guerre"], ["Nécromancien", "Nécromancienne"], ["Parfumeur", "Parfumeuse"],
+    ["Commandant", "Commandante"], ["Castellan", "Castellane"], ["Doigt sanglant", "Doigt sanglant"],
+    ["Récusant", "Récusante"], ["Précepteur", "Préceptrice"], ["Sorcier", "Sorcière"], ["Gardien", "Gardienne"],
+    ["Maître forgeron", "Maîtresse forgeronne"], ["Chasseur de sorcières", "Chasseuse de sorcières"],
   ],
-  roles: [
-    ["Briseur de serments", "Briseuse de serments"], ["Mangeur de brume", "Mangeuse de brume"],
-    ["Gardien de la clé oubliée", "Gardienne de la clé oubliée"], ["Veilleur du dernier site de grâce", "Veilleuse du dernier site de grâce"],
-    ["Collecteur de runes égarées", "Collectrice de runes égarées"], ["Cartographe des falaises fatales", "Cartographe des falaises fatales"],
-    ["Héritier d'une Grande Rune fêlée", "Héritière d'une Grande Rune fêlée"], ["Porteur de la lanterne froide", "Porteuse de la lanterne froide"],
-    ["Témoin de la Nuit des Couteaux noirs", "Témoin de la Nuit des Couteaux noirs"], ["Accordeur de cloches funèbres", "Accordeuse de cloches funèbres"],
-    ["Dompteur de jarres", "Dompteuse de jarres"], ["Exégète des messages au sol", "Exégète des messages au sol"],
-    ["Négociateur auprès des Deux Doigts", "Négociatrice auprès des Deux Doigts"], ["Rebouteux de Sans-éclat", "Rebouteuse de Sans-éclat"],
-    ["Ambassadeur de la Brume grise", "Ambassadrice de la Brume grise"], ["Fossoyeur de la septième tentative", "Fossoyeuse de la septième tentative"],
-    ["Traducteur des soupirs de Torrent", "Traductrice des soupirs de Torrent"], ["Inspecteur des coffres piégés", "Inspectrice des coffres piégés"],
-    ["Comptable de la Table ronde", "Comptable de la Table ronde"], ["Chantre des ponts effondrés", "Chantre des ponts effondrés"],
-    ["Écuyer d'un dragon à la retraite", "Écuyère d'un dragon à la retraite"], ["Apprenti de Rennala, recalé", "Apprentie de Rennala, recalée"],
-    ["Courtier en larmes écarlates", "Courtière en larmes écarlates"], ["Éclaireur des cavernes sans issue", "Éclaireuse des cavernes sans issue"],
-    ["Souffleur de pierre d'éclat", "Souffleuse de pierre d'éclat"], ["Confident des statues muettes", "Confidente des statues muettes"],
-    ["Greffier des morts répétées", "Greffière des morts répétées"], ["Sonneur de l'ultime cloche", "Sonneuse de l'ultime cloche"],
+  dlcHonorifics: [
+    ["Chevalier aiguille", "Chevalière aiguille"], ["Chevalier noir", "Chevalière noire"],
+    ["Lame de la Nuit", "Lame de la Nuit"], ["Chevalier de feu", "Chevalière de feu"],
   ],
-  marks: [
-    "aux Mille Runes", "à la Lanterne froide", "aux Doigts ternes", "au Bouclier fendu", "à la Fiole vide",
-    "aux Sept Résurrections", "au Regard de brume", "à l'Écu d'albâtre", "aux Bottes de Caelid", "à la Cape trop longue",
-    "au Pas de travers", "à la Rune fêlée", "aux Cendres tièdes", "à l'Épée empruntée", "au Sifflet muet",
-    "à la Main d'ambre", "aux Larmes comptées", "au Heaume cabossé",
-  ],
+  // Lieux de l'Entre-terre
   places: [
-    "du Pont brisé", "des Marais d'albâtre", "de la Dernière Cloche", "de la Tour penchée", "du Gué des Ombres",
-    "des Sept Falaises", "de Nulle-Grâce", "du Bas-Liurnia", "de la Brèche aux Corbeaux", "des Cryptes humides",
-    "de l'Ascenseur sans fond", "du Moulin de Nécrolimbe", "des Catacombes oubliées", "de la Lande cendrée",
+    "de Nécrolimbe", "de Liurnia", "de Caelid", "de Raya Lucaria", "de Leyndell", "de Farum Azula",
+    "de Mohgwyn", "de Nokron", "de l'Arbre-Saint", "de Siofra", "de Sellia", "du mont Gelmir",
+    "du plateau d'Altus", "du Manoir du Volcan", "de Caria", "d'Elphael", "de Morne",
   ],
-  deeds: [
-    "Qui-Revient-Toujours", "Qui-Ne-Roule-Jamais", "Qui-Compte-les-Morts", "Qui-Parlait-aux-Jarres",
-    "Qui-Lisait-les-Messages", "Qui-Attendait-la-Pluie", "Qui-Refusa-la-Grâce", "Qui-Frappait-avant-d'Entrer",
-    "Qui-Siffle-dans-la-Brume", "Qui-Dormait-aux-Sites-de-Grâce",
-  ],
-  numerals: ["II", "III", "IV", "VI", "VII", "IX", "XII", "XIV"],
+  dlcPlaces: ["de l'Arbre-Ombre", "du Donjon de l'Ombre", "des terres de l'Ombre"],
 };
 
 window.ER_LORE = {
