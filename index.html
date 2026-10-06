@@ -322,28 +322,25 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ],
   };
 
-  const PALETTES = {
-    boss: { sky: ["#2a1208", "#0d0604"], glow: "#f0c56a", accent: "#b8402e" },
-    pnj: { sky: ["#141a24", "#07090d"], glow: "#e8d39a", accent: "#6f8db0" },
-    ennemi: { sky: ["#161a12", "#070806"], glow: "#c9c08a", accent: "#7c8f55" },
-    dlc: { sky: ["#241812", "#0a0706"], glow: "#f2b25a", accent: "#c0603a" },
-  };
-
   const FEM = new Set("marie lea emma chloe ines jade louise alice lina rose anna mia julia juliette manon sarah lucie clara zoe eva louna ambre agathe margaux mathilde pauline laura julie sophie nathalie isabelle sandrine valerie celine aurelie emilie elodie stephanie christine catherine sylvie monique francoise nicole anne helene claire charlotte victoria elise lola nina romane oceane marine melanie audrey caroline virginie sabrina karine laetitia amandine morgane justine fanny coralie delphine estelle gaelle yasmine sofia maya lena iris adele capucine apolline josephine margot noemie lou nour fatima aicha myriam sonia leila mariam salome oriane axelle maelle anais cassandre eloise heloise gabrielle jessica jennifer emily olivia sophia isabella ava mila ella grace hannah alix beatrice brigitte chantal colette denise diane elisabeth elizabeth eve florence genevieve ingrid jacqueline jeanne josiane lisa maeva marion martine mireille muriel odile patricia rachel regine sabine severine solene suzanne sylviane therese veronique yvette yvonne zoé lilou lise maud agnes carmen".split(" "));
   const MASC = new Set("pierre philippe jerome baptiste maxime antoine guillaume theophile luca joshua stephane christophe alexandre etienne jeremie emile achille hercule aime rene andre jose elie noe mike steve dave bruce kyle shane wayne jesse moussa issa yahya hamza mustapha mustafa ilya nikita george jean-baptiste jean-marie gilles jacques yves charles lucas matteo mattia andrea".split(" "));
 
   const SCENES = [
     "01-plaine-arbre", "02-soldats", "03-dragon", "04-mage-lune", "05-chevalier-cheval",
     "06-duel", "07-caelid", "08-chateau-orage", "09-site-de-grace", "10-montagnes",
-  ];
+  ].map((n) => `illustrations/${n}.svg`);
+  // Illustrations Meshy déposées dans illustrations/ : prioritaires quand elles existent
+  const MESHY = [1, 2, 3, 4, 5].map((n) => `illustrations/meshy-${n}.png`);
+  let artPool = SCENES;
+
   const ILLUSTRATIONS = new Map();
-  function illustration(name) {
-    if (!ILLUSTRATIONS.has(name)) {
+  function illustration(src) {
+    if (!ILLUSTRATIONS.has(src)) {
       const img = new Image();
-      img.src = `illustrations/${name}.svg`;
-      ILLUSTRATIONS.set(name, img);
+      img.src = src;
+      ILLUSTRATIONS.set(src, img);
     }
-    return ILLUSTRATIONS.get(name);
+    return ILLUSTRATIONS.get(src);
   }
 
   const $ = (id) => document.getElementById(id);
@@ -369,12 +366,6 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     crypto.getRandomValues(buf);
     return buf[0] % length;
   }
-  let artState = 1;
-  const rand = () => {
-    artState = (Math.imul(artState, 1664525) + 1013904223) >>> 0;
-    return artState / 4294967296;
-  };
-
   function drawDifferent(list, previous) {
     if (list.length < 2) return list[0];
     let item;
@@ -404,6 +395,18 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
 
   // ---- Carte ----
   const W = 630, H = 880;
+  const INK = "#140d06";
+  const SERIF = '"Cormorant SC", Georgia, serif';
+  const FRAMES = {
+    boss: { light: "#ecd08a", mid: "#a8742c", dark: "#3e250c", gem: "#c0392b" },
+    pnj: { light: "#c4d6e8", mid: "#5f7f9e", dark: "#1a2a3b", gem: "#3f7cc0" },
+    ennemi: { light: "#d2cbbb", mid: "#7a705f", dark: "#28231c", gem: "#5f6b4a" },
+    dlc: { light: "#f3bd92", mid: "#a4492b", dark: "#35130a", gem: "#e0662f" },
+  };
+  const COST = { boss: 3, pnj: 2, ennemi: 1 };
+  const SUBTYPE = { boss: "Créature légendaire — Boss", pnj: "Créature — PNJ", ennemi: "Créature — Ennemi" };
+  const RARITY_STYLE = { boss: ["#ffb347", "#a4380f", "L"], pnj: ["#f1dc9c", "#8a6a1e", "R"], ennemi: ["#4a4a4a", "#0a0a0a", "C"] };
+  const PARCHMENT = ["#f5eedb", "#ddcfac", "#c8b78e"];
 
   function roundRect(x, y, w, h, r) {
     ctx.beginPath();
@@ -415,280 +418,227 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ctx.closePath();
   }
 
+  let grain = null;
+  function grainPattern() {
+    if (grain) return grain;
+    const c = document.createElement("canvas");
+    c.width = c.height = 128;
+    const g = c.getContext("2d");
+    const img = g.createImageData(128, 128);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = Math.random() * 255;
+      img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+      img.data[i + 3] = 26;
+    }
+    g.putImageData(img, 0, 0);
+    grain = ctx.createPattern(c, "repeat");
+    return grain;
+  }
+
+  function vgrad(y0, y1, stops) {
+    const g = ctx.createLinearGradient(0, y0, 0, y1);
+    stops.forEach((color, i) => g.addColorStop(i / (stops.length - 1), color));
+    return g;
+  }
+
+  function panel(x, y, w, h, r, fill) {
+    roundRect(x, y, w, h, r);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.fillStyle = grainPattern();
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = INK;
+    ctx.stroke();
+    roundRect(x + 3, y + 3, w - 6, h - 6, Math.max(r - 3, 1));
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(255,255,255,.5)";
+    ctx.stroke();
+  }
+
   function fitText(text, maxWidth, size, weight, family) {
     let s = size;
     do { ctx.font = `${weight} ${s}px ${family}`; s -= 1; } while (ctx.measureText(text).width > maxWidth && s > 12);
   }
 
-  function fitWrap(text, x, y, maxWidth, maxHeight, size, style) {
-    let lines, lh;
-    for (let s = size; s >= 13; s--) {
-      ctx.font = `${style} ${s}px Spectral, Georgia, serif`;
-      lh = Math.round(s * 1.35);
-      lines = [];
-      let line = "";
-      for (const word of text.split(" ")) {
-        const test = line ? `${line} ${word}` : word;
-        if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = word; } else { line = test; }
-      }
-      lines.push(line);
-      if (lines.length * lh <= maxHeight) break;
-    }
-    lines.forEach((l, i) => ctx.fillText(l, x, y + i * lh));
-  }
-
-  function wrap(text, x, y, maxWidth, lineHeight) {
-    const words = text.split(" ");
+  function wrapLines(text, maxWidth) {
+    const lines = [];
     let line = "";
-    for (const word of words) {
+    for (const word of text.split(" ")) {
       const test = line ? `${line} ${word}` : word;
-      if (ctx.measureText(test).width > maxWidth && line) {
-        ctx.fillText(line, x, y);
-        line = word;
-        y += lineHeight;
-      } else {
-        line = test;
-      }
+      if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = word; } else { line = test; }
     }
-    ctx.fillText(line, x, y);
+    lines.push(line);
+    return lines;
   }
 
-  function branch(x, y, len, angle, depth, width, color) {
-    if (depth === 0 || len < 4) return;
-    const x2 = x + Math.cos(angle) * len;
-    const y2 = y + Math.sin(angle) * len;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
+  function gem(cx, cy, r, color) {
+    const g = ctx.createRadialGradient(cx - r * .35, cy - r * .4, r * .1, cx, cy, r);
+    g.addColorStop(0, "#fff8e0");
+    g.addColorStop(.3, color);
+    g.addColorStop(1, "#050302");
     ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.quadraticCurveTo(x + (rand() - .5) * len * .3, (y + y2) / 2, x2, y2);
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = INK;
     ctx.stroke();
-    const n = depth > 6 ? 2 : 2 + Math.floor(rand() * 2);
-    for (let i = 0; i < n; i++) {
-      branch(x2, y2, len * (.68 + rand() * .14), angle + (rand() - .5) * 1.1, depth - 1, width * .68, color);
-    }
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * .42, 0, Math.PI * 2);
+    ctx.moveTo(cx, cy - r * .72);
+    ctx.lineTo(cx, cy + r * .72);
+    ctx.lineWidth = 1.8;
+    ctx.strokeStyle = "rgba(255,240,205,.9)";
+    ctx.stroke();
   }
 
-  function drawArt(x, y, w, h, pal) {
-    artState = current.artSeed || 1;
+  function setSymbol(cx, cy, cat) {
+    const [top, bottom] = RARITY_STYLE[cat];
+    const g = ctx.createLinearGradient(cx, cy - 16, cx, cy + 16);
+    g.addColorStop(0, top);
+    g.addColorStop(1, bottom);
+    const path = () => {
+      ctx.beginPath();
+      ctx.arc(cx, cy + 2, 11, 0, Math.PI * 2);
+      ctx.moveTo(cx, cy - 17);
+      ctx.lineTo(cx, cy + 19);
+      ctx.moveTo(cx - 9, cy - 6);
+      ctx.arc(cx, cy - 6, 9, Math.PI, 0);
+    };
+    path();
+    ctx.lineWidth = 7;
+    ctx.strokeStyle = INK;
+    ctx.stroke();
+    path();
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = g;
+    ctx.stroke();
+  }
+
+  function drawArtWindow(c, x, y, w, h) {
+    ctx.fillStyle = INK;
+    ctx.fillRect(x - 4, y - 4, w + 8, h + 8);
     ctx.save();
     ctx.beginPath();
     ctx.rect(x, y, w, h);
     ctx.clip();
-
-    const sky = ctx.createLinearGradient(0, y, 0, y + h);
-    sky.addColorStop(0, pal.sky[0]);
-    sky.addColorStop(1, pal.sky[1]);
-    ctx.fillStyle = sky;
-    ctx.fillRect(x, y, w, h);
-
-    const cx = x + w / 2, cy = y + h * .42;
-    const halo = ctx.createRadialGradient(cx, cy, 10, cx, cy, h * .75);
-    halo.addColorStop(0, pal.glow + "88");
-    halo.addColorStop(.4, pal.glow + "22");
-    halo.addColorStop(1, "transparent");
-    ctx.fillStyle = halo;
-    ctx.fillRect(x, y, w, h);
-
-    ctx.strokeStyle = pal.glow + "55";
-    ctx.lineWidth = 2;
-    const rings = 3 + Math.floor(rand() * 3);
-    for (let i = 0; i < rings; i++) {
-      ctx.beginPath();
-      ctx.arc(cx + (rand() - .5) * 80, cy + (rand() - .5) * 50, 40 + rand() * 110, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-    ctx.beginPath();
-    ctx.moveTo(cx, y + 10);
-    ctx.lineTo(cx, y + h - 10);
-    ctx.stroke();
-
-    ctx.shadowColor = pal.glow;
-    ctx.shadowBlur = 18;
-    ctx.lineCap = "round";
-    branch(cx, y + h + 10, h * .26, -Math.PI / 2, 9, 16, pal.glow);
-    ctx.shadowBlur = 0;
-
-    const ground = ctx.createLinearGradient(0, y + h * .75, 0, y + h);
-    ground.addColorStop(0, "transparent");
-    ground.addColorStop(1, "#000000cc");
-    ctx.fillStyle = ground;
-    ctx.fillRect(x, y, w, h);
-
-    for (let i = 0; i < 70; i++) {
-      ctx.fillStyle = pal.glow + (rand() > .5 ? "cc" : "66");
-      ctx.beginPath();
-      ctx.arc(x + rand() * w, y + rand() * h, rand() * 2.2 + .4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.fillStyle = pal.accent + "55";
-    ctx.beginPath();
-    ctx.moveTo(x, y + h);
-    for (let px = 0; px <= w; px += 30) ctx.lineTo(x + px, y + h - 20 - rand() * 35);
-    ctx.lineTo(x + w, y + h);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  function drawFullArtCard(c) {
-    const pal = PALETTES[c.pick.dlc ? "dlc" : c.pick.cat];
-    const gold = "#d4b46a";
-    ctx.clearRect(0, 0, W, H);
-    ctx.save();
-    roundRect(0, 0, W, H, 28);
-    ctx.clip();
-    const scale = Math.max(W / c.art.naturalWidth, H / c.art.naturalHeight);
-    const iw = c.art.naturalWidth * scale, ih = c.art.naturalHeight * scale;
-    ctx.drawImage(c.art, (W - iw) / 2, (H - ih) / 2, iw, ih);
-    ctx.restore();
-
-    roundRect(28, 28, W - 56, 64, 10);
-    ctx.fillStyle = "#0b0a07d9";
-    ctx.fill();
-    ctx.strokeStyle = gold;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = gold;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-    fitText(c.title, W - 100, 34, 700, '"Cormorant SC", Georgia, serif');
-    ctx.fillText(c.title, 46, 61);
-
-    const y0 = H - 340;
-    roundRect(28, y0, W - 56, 312, 12);
-    ctx.fillStyle = "#ece3cbf0";
-    ctx.fill();
-    ctx.strokeStyle = gold;
-    ctx.stroke();
-
-    ctx.fillStyle = "#1e1910";
-    fitText(c.pick.name, W - 280, 25, 600, "Spectral, Georgia, serif");
-    ctx.fillText(c.pick.name, 48, y0 + 32);
-    ctx.textAlign = "right";
-    ctx.fillStyle = pal.accent;
-    ctx.font = '700 19px "Cormorant SC", Georgia, serif';
-    ctx.fillText(`${LABELS[c.pick.cat]} · ${RARITY[c.pick.cat]}`, W - 48, y0 + 32);
-    ctx.textAlign = "left";
-    ctx.strokeStyle = "#b39b62";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(48, y0 + 56);
-    ctx.lineTo(W - 48, y0 + 56);
-    ctx.stroke();
-
-    ctx.textBaseline = "top";
-    ctx.fillStyle = "#2a2418";
-    fitWrap(c.loreText, 48, y0 + 68, W - 96, 176, 21, "400");
-
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#6b5f45";
-    ctx.font = '500 17px "Cormorant SC", Georgia, serif';
-    ctx.fillText(`N° ${String(c.number).padStart(3, "0")}/${DATA.length} · La Forge des Sans-éclat`, 48, y0 + 280);
-    roundRect(W - 166, y0 + 256, 118, 48, 10);
-    ctx.fillStyle = "#15120c";
-    ctx.fill();
-    ctx.strokeStyle = gold;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = gold;
-    ctx.textAlign = "center";
-    ctx.font = '700 28px "Cormorant SC", Georgia, serif';
-    ctx.fillText(`${c.atk} / ${c.def}`, W - 107, y0 + 281);
-    ctx.textAlign = "left";
-  }
-
-  function drawCard(c) {
-    if (c.art) return drawFullArtCard(c);
-    const pal = PALETTES[c.pick.dlc ? "dlc" : c.pick.cat];
-    const gold = "#d4b46a";
-    ctx.clearRect(0, 0, W, H);
-
-    roundRect(0, 0, W, H, 28);
-    ctx.fillStyle = "#0b0a07";
-    ctx.fill();
-    roundRect(14, 14, W - 28, H - 28, 20);
-    const frame = ctx.createLinearGradient(0, 0, W, H);
-    frame.addColorStop(0, "#3a3220");
-    frame.addColorStop(.5, "#1e1a12");
-    frame.addColorStop(1, "#3a3220");
-    ctx.fillStyle = frame;
-    ctx.fill();
-    ctx.strokeStyle = gold;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Bandeau du titre
-    roundRect(34, 34, W - 68, 62, 10);
-    ctx.fillStyle = "#15120c";
-    ctx.fill();
-    ctx.strokeStyle = gold + "aa";
-    ctx.stroke();
-    ctx.fillStyle = gold;
-    ctx.textBaseline = "middle";
-    ctx.textAlign = "left";
-    fitText(c.title, W - 110, 34, 700, '"Cormorant SC", Georgia, serif');
-    ctx.fillText(c.title, 52, 66);
-
-    // Illustration
-    const artX = 34, artY = 108, artW = W - 68, artH = 400;
-    {
-      drawArt(artX, artY, artW, artH, pal);
+    if (c.art) {
+      const scale = Math.max(w / c.art.naturalWidth, h / c.art.naturalHeight);
+      const iw = c.art.naturalWidth * scale, ih = c.art.naturalHeight * scale;
+      ctx.drawImage(c.art, x + (w - iw) / 2, y + (h - ih) * .3, iw, ih);
+    } else {
+      ctx.fillStyle = vgrad(y, y + h, ["#2a2116", "#0d0a06"]);
+      ctx.fillRect(x, y, w, h);
       if (c.artLoading) {
-        ctx.fillStyle = "#000000aa";
-        ctx.fillRect(artX, artY + artH - 44, artW, 44);
-        ctx.fillStyle = "#e6dcc0";
+        ctx.fillStyle = "#b9a77e";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.font = 'italic 20px Spectral, Georgia, serif';
-        ctx.fillText("Le copiste prépare l'enluminure…", artX + artW / 2, artY + artH - 22);
+        ctx.font = "italic 20px Spectral, Georgia, serif";
+        ctx.fillText("L'enluminure arrive…", x + w / 2, y + h / 2);
         ctx.textAlign = "left";
       }
     }
-    ctx.strokeStyle = gold + "aa";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(artX, artY, artW, artH);
+    const shade = ctx.createLinearGradient(0, y, 0, y + 30);
+    shade.addColorStop(0, "rgba(0,0,0,.45)");
+    shade.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = shade;
+    ctx.fillRect(x, y, w, 30);
+    ctx.restore();
+  }
 
-    // Ligne de type
-    roundRect(34, 520, W - 68, 54, 10);
-    ctx.fillStyle = "#15120c";
+  function drawCard(c) {
+    const cat = c.pick.cat;
+    const f = FRAMES[c.pick.dlc ? "dlc" : cat];
+    ctx.clearRect(0, 0, W, H);
+
+    // Bordure noire
+    roundRect(0, 0, W, H, 30);
+    ctx.fillStyle = "#0b0907";
     ctx.fill();
-    ctx.strokeStyle = gold + "aa";
+
+    // Cadre métallique
+    roundRect(20, 20, W - 40, H - 64, 18);
+    const metal = ctx.createLinearGradient(20, 20, W - 20, H - 44);
+    metal.addColorStop(0, f.light);
+    metal.addColorStop(.4, f.mid);
+    metal.addColorStop(.7, f.light);
+    metal.addColorStop(1, f.dark);
+    ctx.fillStyle = metal;
+    ctx.fill();
+    ctx.fillStyle = grainPattern();
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = INK;
     ctx.stroke();
-    ctx.fillStyle = "#e6dcc0";
-    fitText(c.pick.name, W - 250, 26, 600, "Spectral, Georgia, serif");
-    ctx.fillText(c.pick.name, 52, 547);
-    ctx.textAlign = "right";
-    ctx.fillStyle = pal.accent;
-    ctx.font = '700 20px "Cormorant SC", Georgia, serif';
-    ctx.fillText(`${LABELS[c.pick.cat]} · ${RARITY[c.pick.cat]}`, W - 52, 547);
+
+    // Barre de titre + coût
+    panel(34, 34, W - 68, 54, 16, vgrad(34, 88, PARCHMENT));
+    const cost = COST[cat];
+    for (let i = 0; i < cost; i++) gem(W - 64 - i * 34, 61, 14, f.gem);
+    ctx.fillStyle = INK;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    fitText(c.title, W - 68 - 40 - cost * 34 - 8, 30, 700, SERIF);
+    ctx.fillText(c.title, 52, 62);
+
+    // Illustration
+    drawArtWindow(c, 48, 98, W - 96, 388);
+
+    // Ligne de type + symbole d'extension
+    panel(34, 494, W - 68, 46, 14, vgrad(494, 540, PARCHMENT));
+    ctx.fillStyle = INK;
+    fitText(SUBTYPE[cat], W - 160, 24, 700, SERIF);
+    ctx.fillText(SUBTYPE[cat], 52, 518);
+    setSymbol(W - 66, 517, cat);
 
     // Encart de texte
-    roundRect(34, 586, W - 68, 200, 10);
-    ctx.fillStyle = "#e9e0c8";
+    roundRect(48, 548, W - 96, 236, 6);
+    ctx.fillStyle = vgrad(548, 784, ["#f3ebd6", "#e2d4b2"]);
     ctx.fill();
-    ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    ctx.textBaseline = "top";
-    ctx.fillStyle = "#2a2418";
-    fitWrap(c.loreText, 54, 604, W - 108, 168, 21, "400");
-    ctx.textBaseline = "alphabetic";
-
-    // Pied de carte
-    ctx.fillStyle = "#9b917a";
-    ctx.font = '500 17px "Cormorant SC", Georgia, serif';
-    ctx.fillText(`N° ${String(c.number).padStart(3, "0")}/${DATA.length} · La Forge des Sans-éclat`, 40, 830);
-
-    roundRect(W - 168, 800, 128, 52, 10);
-    ctx.fillStyle = "#15120c";
+    ctx.fillStyle = grainPattern();
     ctx.fill();
-    ctx.strokeStyle = gold;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = INK;
     ctx.stroke();
-    ctx.fillStyle = gold;
+
+    ctx.textBaseline = "top";
+    ctx.fillStyle = INK;
+    fitText(c.pick.name, W - 130, 22, 700, "Spectral, Georgia, serif");
+    ctx.fillText(c.pick.name, 66, 562);
+    ctx.strokeStyle = "rgba(20,13,6,.35)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(66, 594);
+    ctx.lineTo(W - 66, 594);
+    ctx.stroke();
+    let size = 19, lines, lh;
+    do {
+      ctx.font = `italic ${size}px Spectral, Georgia, serif`;
+      lh = Math.round(size * 1.32);
+      lines = wrapLines(c.loreText, W - 132);
+      size -= 1;
+    } while (lines.length * lh > 168 && size > 12);
+    lines.forEach((l, i) => ctx.fillText(l, 66, 604 + i * lh));
+
+    // Force / endurance
+    panel(W - 166, 760, 128, 52, 14, vgrad(760, 812, [f.light, f.mid]));
+    ctx.fillStyle = INK;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = '700 30px "Cormorant SC", Georgia, serif';
-    ctx.fillText(`${c.atk} / ${c.def}`, W - 104, 827);
+    ctx.font = `700 32px ${SERIF}`;
+    ctx.fillText(`${c.atk}/${c.def}`, W - 102, 787);
+
+    // Mentions en pied de carte
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = "#e9e1cd";
+    ctx.font = "600 13px Spectral, Georgia, serif";
+    ctx.fillText(`${String(c.number).padStart(3, "0")}/${DATA.length} ${RARITY_STYLE[cat][2]} · FSE · FR`, 40, 846);
+    ctx.font = "italic 13px Spectral, Georgia, serif";
+    ctx.fillText("Illus. La Forge des Sans-éclat", 40, 864);
+    ctx.textAlign = "right";
+    ctx.fillText("Projet de fan, non officiel", W - 40, 864);
     ctx.textAlign = "left";
   }
 
@@ -713,7 +663,9 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
       .replaceAll("{il}", g === "f" ? "elle" : "il")
       .replaceAll("{le}", g === "f" ? "la" : "le")
       .replaceAll("{caste}", c.pick.name)
-      .replaceAll("{ep}", ep);
+      .replaceAll("{ep}", ep)
+      .replaceAll("« ", "«\u00a0")
+      .replaceAll(" »", "\u00a0»");
   }
 
   function stats(cat) {
@@ -763,7 +715,7 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     const display = capitalize($("prenom").value) || "Sans-éclat";
     const pick = drawDifferent(currentPool(), last.pick);
     const ep = drawDifferent(EPITHETS, last.ep);
-    const scene = drawDifferent(SCENES, last.scene);
+    const scene = drawDifferent(artPool, last.scene);
     last.pick = pick;
     last.ep = ep;
     last.scene = scene;
@@ -774,7 +726,6 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
       number: DATA.indexOf(pick) + 1,
     };
     $("status").textContent = "";
-    current.artSeed = randomIndex(1e9);
     requestArt(current);
     render();
     replay($("title"));
@@ -836,6 +787,14 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   });
 
   forge();
+  Promise.all(MESHY.map((src) => new Promise((done) => {
+    const img = illustration(src);
+    img.addEventListener("load", () => done(src), { once: true });
+    img.addEventListener("error", () => done(null), { once: true });
+  }))).then((found) => {
+    const meshy = found.filter(Boolean);
+    if (meshy.length) artPool = meshy;
+  });
   Promise.all([
     document.fonts.load('700 34px "Cormorant SC"'),
     document.fonts.load("600 21px Spectral"),
