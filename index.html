@@ -220,33 +220,67 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     ["Shadow of the Erdtree", (e) => e.dlc],
   ];
 
-  // Épithètes tirées des noms du jeu : [masculin, féminin]
+  // Épithètes : [masculin, féminin, description visuelle pour le générateur d'images]
   const EPITHETS = [
-    ["le Déchu", "la Déchue"], ["le Greffé", "la Greffée"], ["Roi de la Pleine Lune", "Reine de la Pleine Lune"],
-    ["Fléau des astres", "Fléau des astres"], ["Seigneur du Blasphème", "Dame du Blasphème"],
-    ["Roi des Réprouvés", "Reine des Réprouvés"], ["la Lame d'ébène", "la Lame d'ébène"],
-    ["l'Omniscient", "l'Omnisciente"], ["Premier Seigneur d'Elden", "Première Dame d'Elden"],
-    ["le Guerrier", "la Guerrière"], ["Lame de Miquella", "Lame de Miquella"],
-    ["Dieu de la Putréfaction", "Déesse de la Putréfaction"], ["Seigneur du Sang", "Dame du Sang"],
-    ["le Réprouvé", "la Réprouvée"], ["Né du Vide", "Née du Vide"], ["Étoile des Ténèbres", "Étoile des Ténèbres"],
-    ["Chevalier de l'Arbre-Saint", "Chevalière de l'Arbre-Saint"], ["le Décomposé", "la Décomposée"],
-    ["le Brouillard glacial", "le Brouillard glacial"], ["la Fleur flétrie", "la Fleur flétrie"],
-    ["Voleur de feu", "Voleuse de feu"], ["Meneur des Couteaux noirs", "Meneuse des Couteaux noirs"],
-    ["Prêtre du Sang", "Prêtresse du Sang"], ["Chevalier carien", "Chevalière carienne"],
-    ["le Grand Ours rouge", "la Grande Ourse rouge"], ["Chevalier des Lunes jumelles", "Chevalière des Lunes jumelles"],
-    ["l'Empaleur", "l'Empaleuse"], ["Saint du Bourgeon", "Sainte du Bourgeon"],
-    ["Seigneur de la Flamme de la Frénésie", "Dame de la Flamme de la Frénésie"], ["Père des Doigts", "Mère des Doigts"],
-    ["l'Effroyable", "l'Effroyable"], ["Consort promis", "Consorte promise"], ["Consort de Miquella", "Consorte de Miquella"],
-    ["Inquisiteur aîné", "Inquisitrice aînée"], ["Feuille-Sèche", "Feuille-Sèche"], ["le Sorcier", "la Sorcière"],
-    ["le Demi-Loup", "la Demi-Louve"], ["le Couturier", "la Couturière"],
-    ["Chasseur de Doigts sanglants", "Chasseuse de Doigts sanglants"], ["l'Albinauréen", "l'Albinauréenne"],
-    ["Chasseur des morts", "Chasseuse des morts"], ["Compagnon du lit de mort", "Compagne du lit de mort"],
-    ["le Récusant", "la Récusante"], ["Guerrier-jarre", "Guerrière-jarre"], ["Liseur de Doigts", "Liseuse de Doigts"],
-    ["le Truand", "la Truande"], ["Pasteur des vœux", "Pasteure des vœux"], ["Serviteur carien", "Servante carienne"],
-    ["l'Éternel", "l'Éternelle"], ["le Doré", "la Dorée"], ["le Bienveillant", "la Bienveillante"], ["l'Oisif", "l'Oisive"],
-    ["Dévoreur de Sans-éclat", "Dévoreuse de Sans-éclat"], ["Griffe de bête", "Griffe de bête"],
-    ["Châtelain du château ombragé", "Châtelaine du château ombragé"], ["Doigt sanglant violet", "Doigt sanglant violet"],
-    ["le Sans-tête", "la Sans-tête"], ["Poing-de-fer", "Poing-de-fer"], ["Tueur de Réprouvés", "Tueuse de Réprouvés"],
+    ["le Déchu", "la Déchue", "a fallen champion kneeling in ruins, broken crown, tattered cloak"],
+    ["le Greffé", "la Greffée", "a grotesque warrior with many grafted extra arms and stitched limbs"],
+    ["Roi de la Pleine Lune", "Reine de la Pleine Lune", "a sorcerer monarch beneath a giant full moon, glowing blue moonlight"],
+    ["Fléau des astres", "Fléau des astres", "a colossal warrior calling down falling meteors, red starry sky"],
+    ["Seigneur du Blasphème", "Dame du Blasphème", "a blasphemous ruler fused with a giant serpent, lava and flames"],
+    ["Roi des Réprouvés", "Reine des Réprouvés", "a horned cursed monarch with a golden halo and holy golden blades"],
+    ["la Lame d'ébène", "la Lame d'ébène", "a beast-like warrior wielding a black blade wreathed in dark flames"],
+    ["l'Omniscient", "l'Omnisciente", "an all-knowing scholar knight surrounded by floating tomes and runes"],
+    ["Premier Seigneur d'Elden", "Première Dame d'Elden", "a golden-haired barbarian ruler with a great axe and a golden aura"],
+    ["le Guerrier", "la Guerrière", "a battle-scarred warrior with a great axe and a roaring lion"],
+    ["Lame de Miquella", "Lame de Miquella", "a one-armed swordfighter with a golden prosthetic arm, katana, scarlet flowers"],
+    ["Dieu de la Putréfaction", "Déesse de la Putréfaction", "a deity of decay with scarlet butterflies and a giant blooming rot flower"],
+    ["Seigneur du Sang", "Dame du Sang", "a blood ruler with a crimson trident and rivers of blood"],
+    ["le Réprouvé", "la Réprouvée", "a horned cursed outcast in a dark cloak with a golden cane"],
+    ["Né du Vide", "Née du Vide", "a cosmic being from the void, starry tendrils, galaxy background"],
+    ["Étoile des Ténèbres", "Étoile des Ténèbres", "a dark star entity in the black cosmos, purple nebula"],
+    ["Chevalier de l'Arbre-Saint", "Chevalière de l'Arbre-Saint", "a knight on horseback with a glaive before a giant sacred tree in the snow"],
+    ["le Décomposé", "la Décomposée", "a decaying figure with rotting flesh and crimson rot"],
+    ["le Brouillard glacial", "le Brouillard glacial", "a figure made of freezing fog with a frost dragon in a blizzard"],
+    ["la Fleur flétrie", "la Fleur flétrie", "a figure crowned with withered poisonous flowers"],
+    ["Voleur de feu", "Voleuse de feu", "a thief holding stolen living fire in their hands"],
+    ["Meneur des Couteaux noirs", "Meneuse des Couteaux noirs", "a ghostly assassin in a black hood with a cursed black dagger"],
+    ["Prêtre du Sang", "Prêtresse du Sang", "a blood priest in red robes performing a crimson ritual"],
+    ["Chevalier carien", "Chevalière carienne", "a knight with a glowing blue crystal sword under moonlight"],
+    ["le Grand Ours rouge", "la Grande Ourse rouge", "a huge feral red bear with glowing red eyes"],
+    ["Chevalier des Lunes jumelles", "Chevalière des Lunes jumelles", "a knight wielding twin moon magic, two moons, blue and gold"],
+    ["l'Empaleur", "l'Empaleuse", "a warrior with a long spear of flame and coiling serpents"],
+    ["Saint du Bourgeon", "Sainte du Bourgeon", "a saint surrounded by corrupted flower buds, holy and decayed"],
+    ["Seigneur de la Flamme de la Frénésie", "Dame de la Flamme de la Frénésie", "a mad lord of yellow frenzied flame with burning eyes"],
+    ["Père des Doigts", "Mère des Doigts", "a giant eerie cosmic entity made of many long fingers"],
+    ["l'Effroyable", "l'Effroyable", "a dreadful ancient dragon with a broken jaw, lightning storm"],
+    ["Consort promis", "Consorte promise", "a consort warrior bathed in golden light, gravity magic"],
+    ["Consort de Miquella", "Consorte de Miquella", "a warrior bound by golden enchantment, holy light and petals"],
+    ["Inquisiteur aîné", "Inquisitrice aînée", "an elderly inquisitor with a flaming whip and chains"],
+    ["Feuille-Sèche", "Feuille-Sèche", "a martial artist monk with dry leaves swirling, bare fists"],
+    ["le Sorcier", "la Sorcière", "a sorcerer casting blue crystal magic"],
+    ["le Demi-Loup", "la Demi-Louve", "a half-wolf warrior with a wolf head and a greatsword in moonlight"],
+    ["le Couturier", "la Couturière", "a small tailor creature sewing with a golden needle"],
+    ["Chasseur de Doigts sanglants", "Chasseuse de Doigts sanglants", "a hunter in red with bloodied hands and a katana"],
+    ["l'Albinauréen", "l'Albinauréenne", "a pale archer with a great bow and a wolf companion"],
+    ["Chasseur des morts", "Chasseuse des morts", "a knight hunting the undead with holy light among dead roots"],
+    ["Compagnon du lit de mort", "Compagne du lit de mort", "a tall gentle figure in a white veil by a candlelit deathbed"],
+    ["le Récusant", "la Récusante", "a renegade knight with a war hammer and a dark aura"],
+    ["Guerrier-jarre", "Guerrière-jarre", "a giant living clay jar warrior"],
+    ["Liseur de Doigts", "Liseuse de Doigts", "an old fortune teller reading fingers by candlelight"],
+    ["le Truand", "la Truande", "a burly grinning rogue with a cleaver"],
+    ["Pasteur des vœux", "Pasteure des vœux", "a giant turtle priest with a mitre in a chapel"],
+    ["Serviteur carien", "Servante carienne", "a mournful servant in a blue robe"],
+    ["l'Éternel", "l'Éternelle", "an eternal monarch with a golden runic halo"],
+    ["le Doré", "la Dorée", "a radiant figure in glowing golden armor"],
+    ["le Bienveillant", "la Bienveillante", "a kind young demigod with golden hair and holy flowers"],
+    ["l'Oisif", "l'Oisive", "an idle figure lounging in worn armor"],
+    ["Dévoreur de Sans-éclat", "Dévoreuse de Sans-éclat", "a sinister figure feasting among fallen warriors"],
+    ["Griffe de bête", "Griffe de bête", "a savage hunter with beast claws"],
+    ["Châtelain du château ombragé", "Châtelaine du château ombragé", "a castellan standing in a gloomy shadowy castle"],
+    ["Doigt sanglant violet", "Doigt sanglant violet", "a violet-robed assassin with a twinblade and a violet aura"],
+    ["le Sans-tête", "la Sans-tête", "a headless knight in ghostly armor"],
+    ["Poing-de-fer", "Poing-de-fer", "a warrior with huge iron fists"],
+    ["Tueur de Réprouvés", "Tueuse de Réprouvés", "an executioner with a cleaver hunting horned outcasts"],
   ];
 
   // {e} devient "e" au féminin, {il} devient "elle"
@@ -299,9 +333,9 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   const MASC = new Set("pierre philippe jerome baptiste maxime antoine guillaume theophile luca joshua stephane christophe alexandre etienne jeremie emile achille hercule aime rene andre jose elie noe mike steve dave bruce kyle shane wayne jesse moussa issa yahya hamza mustapha mustafa ilya nikita george jean-baptiste jean-marie gilles jacques yves charles lucas matteo mattia andrea".split(" "));
 
   const ART_HINTS = {
-    boss: "a fearsome legendary lord, imposing silhouette",
-    pnj: "a mysterious wandering figure, hooded traveller",
-    ennemi: "a grim soldier or monstrous creature",
+    boss: "fearsome legendary presence, imposing silhouette",
+    pnj: "mysterious wandering traveller",
+    ennemi: "grim and battle-worn",
   };
   const ART_TIMEOUT = 60000;
 
@@ -699,12 +733,12 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     drawCard(current);
   }
 
-  function artPrompt(pick) {
+  function artPrompt(c, g) {
     return [
       "Full-art dark fantasy collectible trading card, portrait format, ornate gilded medieval frame",
       "illuminated manuscript illustration, ink and gold leaf on aged parchment, muted earthy colors",
-      ART_HINTS[pick.cat],
-      `inspired by ${pick.name}`,
+      `main subject: ${g === "f" ? "a woman" : "a man"}, ${c.ep[2]}`,
+      ART_HINTS[c.pick.cat],
       "no text, no letters, no words",
     ].join(", ");
   }
@@ -713,10 +747,12 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
     const img = new Image();
     img.crossOrigin = "anonymous";
     const seed = randomIndex(1e6);
-    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(artPrompt(c.pick))}?width=630&height=880&seed=${seed}&nologo=true`;
+    c.art = null;
+    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(artPrompt(c, gender()))}?width=630&height=880&seed=${seed}&nologo=true`;
     c.artLoading = true;
+    c.artRequest = img;
     const done = (ok) => {
-      if (current !== c || !c.artLoading) return;
+      if (current !== c || c.artRequest !== img || !c.artLoading) return;
       c.artLoading = false;
       if (ok) c.art = img;
       else $("status").textContent = "Le générateur d'images ne répond pas : voici une carte de secours. Reforge pour réessayer.";
@@ -754,7 +790,11 @@ footer { color: var(--muted); font-size: .85rem; text-align: center; }
   });
   $("forge").addEventListener("submit", (e) => { e.preventDefault(); forge(); });
   document.querySelectorAll('input[name="cat"]').forEach((r) => r.addEventListener("change", forge));
-  document.querySelectorAll('input[name="genre"]').forEach((r) => r.addEventListener("change", render));
+  document.querySelectorAll('input[name="genre"]').forEach((r) => r.addEventListener("change", () => {
+    if (!current) return;
+    requestArt(current);
+    render();
+  }));
 
   $("copy").addEventListener("click", () => {
     const text = `${$("title").textContent} — ${$("caste").textContent}`;
